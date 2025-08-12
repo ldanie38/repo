@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>FACRM</title>
+    <link rel="stylesheet" href="../src/styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <h1>Facebook AI Connector CRM</h1>
+
+      <section class="card">
+        <h2>Smart Filter (Mock)</h2>
+        <label for="companies">Company</label>
+        <select id="companies">
+          <option value="">-- Select --</option>
+          <option>BitStack</option>
+          <option>Acme</option>
+        </select>
+
+        <label for="tags">Tags (comma separated)</label>
+        <input id="tags" type="text" placeholder="prospect, friend" />
+
+        <div class="row">
+          <label>
+            <input type="checkbox" id="recent" />
+            Recent activity only
+          </label>
+        </div>
+
+        <div class="row">
+          <button id="saveFilters">Save Filters</button>
+          <button id="loadFilters">Load Filters</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Backend Test</h2>
+        <button id="testApi">Test API</button>
+        <pre id="apiResult"></pre>
+      </section>
+    </div>
+    <script src="../src/popup.js"></script>
+  </body>
+</html>

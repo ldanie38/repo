@@ -1,0 +1,26 @@
+name: extension-ci
+on:
+  push:
+    paths:
+      - "extension/**"
+  pull_request:
+    paths:
+      - "extension/**"
+jobs:
+  build:
+    runs-on: docker
+    steps:
+      - uses: actions/checkout@v3
+      - name: Lint (skipped if no config)
+        working-directory: extension
+        run: |
+          if [ -f package.json ]; then
+            npm ci
+            npm run lint --if-present
+          else
+            echo "No package.json; skipping."
+          fi
+      - name: Validate manifest
+        working-directory: extension
+        run: |
+          test -f manifest.json && echo "Manifest exists."

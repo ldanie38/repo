@@ -1,4 +1,7 @@
-# Python
+
+
+
+# Pyt
 __pycache__/
 *.pyc
 .venv/
@@ -14,3 +17,12 @@ dist/
 .vscode/
 # Docker
 pgdata/
+
+venv/
+__pycache__/
+*.pyc
+.Pipfile.lock
+.env
+
+
+docker/.env

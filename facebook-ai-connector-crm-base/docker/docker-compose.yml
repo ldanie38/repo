@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  web:
+    build:
+      context: ..                   # from docker/ → project root
+      dockerfile: infra/Dockerfile  # project-root/infra/Dockerfile
+    command: >
+      sh -c "uvicorn app.core.main:app
+             --host 0.0.0.0
+             --port 8000
+             --reload"
+    volumes:
+      - ..:/app                     # mount entire repo for live reload
+    env_file:
+      - .env                        # picks up docker/.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+  db:
+    image: postgres:14
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
+volumes:
+  pgdata:

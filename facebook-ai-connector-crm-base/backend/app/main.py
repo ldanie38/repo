@@ -1,3 +1,13 @@
+# backend/app/main.py
+
+from dotenv import load_dotenv
+from pathlib import Path
+
+# 1) Load the repo-root .env first
+env_path = Path(__file__).resolve().parents[2] / ".env"
+load_dotenv(dotenv_path=str(env_path))
+
+# 2) Now import settings so BaseSettings picks up the vars
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
@@ -19,14 +29,4 @@ app.add_middleware(
 def healthz():
     return {"status": "ok"}
 
-@app.get("/api/contacts")
-def get_contacts():
-    # Mock contacts for Base Project Scaffold
-    return [
-        {"id": 1, "name": "Ada Lovelace", "tags": ["prospect", "ai"]},
-        {"id": 2, "name": "Alan Turing", "tags": ["ml", "friend"]},
-    ]
-
-@app.get("/api/logs")
-def get_logs():
-    return [{"ts": "2025-08-12T12:00:00Z", "msg": "Mock log entry"}]
+# …rest of your routes…

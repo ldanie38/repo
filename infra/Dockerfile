@@ -1,24 +1,31 @@
-FROM python:3.10-slim
+# infra/Dockerfile
+FROM python:3.13-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends gcc libpq-dev \
-    && pip install --no-cache-dir pipenv \
-    && rm -rf /var/lib/apt/lists/*
+# Install deps
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy your Pipfile and lock from the project root into the image
-COPY Pipfile Pipfile.lock ./
+# Copy source
+COPY . .
 
-# Install all dependencies in a Pipenv‐managed venv
-RUN pipenv install --deploy --ignore-pipfile
-
-# Copy your backend source code into the image
-COPY backend ./backend
+# Point Python at backend/
+ENV PYTHONPATH=/app/backend
 
 EXPOSE 8000
 
-# Launch your FastAPI/Django app
-CMD ["uvicorn", "backend.core.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Launch
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+
+
+
+
+
+
 
 

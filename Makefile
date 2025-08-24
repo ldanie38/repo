@@ -1,19 +1,29 @@
-# Path to your environment file
-ENV_FILE := .env
+# Makefile
 
-# Base docker compose command with your compose file
-COMPOSE := docker compose -f docker/docker-compose.yml
+.PHONY: build up down migrate shell test
 
-.PHONY: dev down config migrate
+# Build images
+build:
+    docker-compose --env-file .env -f docker/docker-compose.yml build
 
-dev: ## Build and start web + db in detached mode
-    $(COMPOSE) --env-file $(ENV_FILE) up -d --build
+# Bring up dev stack
+up: build
+    docker-compose --env-file .env -f docker/docker-compose.yml up
 
-down: ## Stop services, remove containers, volumes, and orphans
-    $(COMPOSE) down --volumes --remove-orphans
+# Tear down services
+down:
+    docker-compose -f docker/docker-compose.yml down
 
-config: ## Show the merged Compose YAML
-    $(COMPOSE) --env-file $(ENV_FILE) config
+# Run DB migrations (Alembic or Django migrate)
+migrate:
+    docker-compose --env-file .env -f docker/docker-compose.yml run --rm web alembic upgrade head
+    # or: python manage.py migrate
 
-migrate: ## Run Django migrations inside the web service
-    $(COMPOSE) exec web python manage.py migrate
+# Drop you into a shell inside the web container
+shell:
+    docker-compose --env-file .env -f docker/docker-compose.yml run --rm web bash
+
+# Run your test suite inside Docker
+test:
+    docker-compose --env-file .env -f docker/docker-compose.yml run --rm web pytest
+

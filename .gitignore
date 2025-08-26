@@ -1,6 +1,9 @@
 
 
 
+# ignore environment files
+.env
+docker/.env
 # Pyt
 __pycache__/
 *.pyc

@@ -29,3 +29,10 @@ __pycache__/
 
 
 docker/.env
+
+
+
+# Python virtual environments
+venv/
+.venv/
+

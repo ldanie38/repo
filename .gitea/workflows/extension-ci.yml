@@ -1,26 +1,33 @@
-name: extension-ci
+name: backend-ci
+
 on:
-  push:
-    paths:
-      - "extension/**"
-  pull_request:
-    paths:
-      - "extension/**"
+  pull_request:    # runs on every PR
+
 jobs:
-  build:
-    runs-on: docker
+  test:
+    runs-on: self-hosted
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: facrm
+        ports:
+          - 5432:5432
+
     steps:
       - uses: actions/checkout@v3
-      - name: Lint (skipped if no config)
-        working-directory: extension
-        run: |
-          if [ -f package.json ]; then
-            npm ci
-            npm run lint --if-present
-          else
-            echo "No package.json; skipping."
-          fi
-      - name: Validate manifest
-        working-directory: extension
-        run: |
-          test -f manifest.json && echo "Manifest exists."
+      - name: Setup Python
+        run: python --version
+      - name: Install dependencies
+        working-directory: backend
+        run: pip install -e ".[dev]"
+      - name: Run lint
+        working-directory: backend
+        run: ruff check .
+      - name: Run tests
+        working-directory: backend
+        env:
+          DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/facrm
+        run: pytest -q

@@ -1,40 +1,35 @@
-
-
-
-# ignore environment files
-.env
-docker/.env
-# Pyt
-__pycache__/
-*.pyc
-.venv/
+# --- Environment files ---
 .env
 .env.*
-# Node / Extension
+docker/.env
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pkl
+
+# --- Virtual environments ---
+venv/
+.venv/
+
+# --- Databases ---
+db.sqlite3
+src/db.sqlite3
+
+# --- Node / Extension ---
 node_modules/
 dist/
-# OS/editor
+
+# --- OS/editor ---
 .DS_Store
 *.log
 .idea/
 .vscode/
-# Docker
+
+# --- Docker ---
 pgdata/
 
-venv/
-__pycache__/
-*.pyc
-.Pipfile.lock
-.env
-
-
-docker/.env
-
-
-
-# Python virtual environments
-venv/
-.venv/
-
-.pyc
-__pycache__
+# --- Pipenv lock (if not versioning it) ---
+Pipfile.lock

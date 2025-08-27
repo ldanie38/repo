@@ -64,7 +64,7 @@ CONNECTWISE_SECRET=mock-secret
 MIT (change as needed).
 
 ## Create venv
-python -m venv venv
+python3 -m venv venv
 source venv/bin/activate  # or venv\Scripts\activate on Windows
 pip install -r requirements.txt
 
@@ -106,3 +106,22 @@ make run [PORT=8000]     # Runs Django locally (bypassing Docker) on given port
 make shell               # Opens Django shell locally (bypassing Docker)
 make check               # Runs Django system checks locally
 make logs                # Shows and follows logs from all running containers
+
+
+## workflow from here
+
+make up PORT=8010        # start stack and follow logs
+# in another tab:
+make migrate PORT=8010   # run DB migrations
+make test PORT=8010      # run pytest
+make down                # stop and remove containers
+
+## How to run migrate and test together successfully
+PORT=8010 docker compose -f docker/docker-compose.yml up -d --build
+## then run
+make migrate PORT=8010
+make test PORT=8010
+## Stop when you’re done:
+make down
+
+

@@ -128,7 +128,8 @@ Your .env just feeds values into the container.
 ## Lua
 ## Running Python tooling locally (outside Docker) if u want but dont do it 
 
-run manage.py commands without docker compose exec
+run manage.py 
+## commands without docker compose exec
 
 use Django shell directly on their host
 
@@ -184,6 +185,22 @@ make logs                # Shows and follows logs from all running containers
 
 
 ## WORKFLOW from here
+
+## start or reatrt your stack
+PORT=8010 docker compose -f docker/docker-compose.yml up -d --build
+
+## check container status
+docker compose -f docker/docker-compose.yml ps
+
+## apply migrations
+docker compose -f docker/docker-compose.yml exec web python manage.py migrate
+
+Spins up containers
+
+Waits for DB readiness
+
+Runs migrations in one go
+
 
 make up PORT=8010        # start stack and follow logs
 # in another tab:

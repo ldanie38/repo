@@ -124,4 +124,16 @@ make test PORT=8010
 ## Stop when you’re done:
 make down
 
+## restart docker containers
+PORT=8000 docker compose -f docker/docker-compose.yml up -d
+## run to open SQL shell
+docker compose -f docker/docker-compose.yml exec web python manage.py dbshell
+## if u see ctm_db=#  means Django successfully connected to your Postgres database
+
+## Explore what’s in the schema
+\dt            -- list all tables in the current schema
+\dt *.*         -- list tables in all schemas
+\d table_name   -- describe table columns and types
+## exit shell
+\q or CTRL+D
 

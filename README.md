@@ -63,18 +63,92 @@ CONNECTWISE_SECRET=mock-secret
 ## License
 MIT (change as needed).
 
-## Create venv
+
+
+
+## Lua
+## Local Development Setup
+## This project runs a Django backend in Docker with a Postgres database. Follow these steps to get started.
+
+
+1. Install prerequisites
+Docker Desktop
+
+Python 3.11+ (for running local tooling/scripts)
+
+Git
+
+2. Clone the repo
+git clone <your-repo-url>
+cd <your-repo-name>
+
+3. Create your .env file
+Copy the template and adjust values if needed:
+
+PORT=8000
+
+POSTGRES_DB=ctm_db
+POSTGRES_USER=ctm_user
+POSTGRES_PASSWORD=supersecret
+POSTGRES_HOST=db
+POSTGRES_PORT=5432
+
+SECRET_KEY=dev_secret_key_here
+DEBUG=True
+
+# App server
+HOST=0.0.0.0
+RELOAD=True
+If using a shared/cloud Postgres instance, replace POSTGRES_HOST and POSTGRES_PORT with the credentials provided by the instance owner.
+
+
+4. Start the app
+Build and start in detached mode
+PORT=8000 docker compose -f docker/docker-compose.yml up -d --build
+
+
+5. Run migrations & tests
+make migrate PORT=8000
+make test PORT=8000
+
+
+6. Access the app
+Django runs at: http://localhost:8000
+API endpoints follow /api/... as defined in the project.
+
+## Lua 
+## Running everything inside Docker 🐳 RECOMMENDED !!!!
+You don’t need a Python virtual environment locally.
+
+You just need Docker installed, because all Python code runs inside the web container — including migrate, test, and runserver.
+
+Your .env just feeds values into the container.
+
+
+## Lua
+## Running Python tooling locally (outside Docker) if u want but dont do it 
+
+run manage.py commands without docker compose exec
+
+use Django shell directly on their host
+
+run pytest locally without Docker
+
 python3 -m venv venv
-source venv/bin/activate  # or venv\Scripts\activate on Windows
+source venv/bin/activate
 pip install -r requirements.txt
 
-## Makefile
 
-## you can also run this one‑liner from the project root to clean tabs automatically:
+
+
+## Lua
+## Makefile -- to simplify your life 
+
+## to clean whitespace 
 sed -E -i '' $'s/^[ ]{2,}/\t/' Makefile
  
 
-
+## Lua
 ## Spins up your Dockerised stack (web + db + volumes).
 make up PORT=8010
 
@@ -84,7 +158,7 @@ make up PORT=8010
 
 ##  run migrations, tests, shell, etc. inside the running container with make migrate, make test, etc.
 
-
+## Lua
 ## Bypasses Docker entirely, runs Django directly in your local venv.
 make run PORT=8010
 
@@ -95,6 +169,7 @@ make run PORT=8010
 ## Needs your local .env + dependencies installed in venv.
 
 
+## Lua
 ## Makefile commands
 
 make up [PORT=8000]      # Checks Docker + .env, then builds/starts containers on given port
@@ -108,7 +183,7 @@ make check               # Runs Django system checks locally
 make logs                # Shows and follows logs from all running containers
 
 
-## workflow from here
+## WORKFLOW from here
 
 make up PORT=8010        # start stack and follow logs
 # in another tab:
@@ -136,4 +211,8 @@ docker compose -f docker/docker-compose.yml exec web python manage.py dbshell
 \d table_name   -- describe table columns and types
 ## exit shell
 \q or CTRL+D
+
+
+
+
 

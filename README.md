@@ -63,7 +63,46 @@ CONNECTWISE_SECRET=mock-secret
 ## License
 MIT (change as needed).
 
-
+## Create venv
 python -m venv venv
 source venv/bin/activate  # or venv\Scripts\activate on Windows
 pip install -r requirements.txt
+
+## Makefile
+
+## you can also run this one‑liner from the project root to clean tabs automatically:
+sed -E -i '' $'s/^[ ]{2,}/\t/' Makefile
+ 
+
+
+## Spins up your Dockerised stack (web + db + volumes).
+make up PORT=8010
+
+## The web container will run Django inside Docker and be accessible on host port 8010.
+
+## You use this to work in the exact same environment your team and production use — containers, env files, everything consistent.
+
+##  run migrations, tests, shell, etc. inside the running container with make migrate, make test, etc.
+
+
+## Bypasses Docker entirely, runs Django directly in your local venv.
+make run PORT=8010
+
+## Still uses the same code, but skips all the container orchestration.
+
+## for quick local dev or debugging without container overhead.
+
+## Needs your local .env + dependencies installed in venv.
+
+
+## Makefile commands
+
+make up [PORT=8000]      # Checks Docker + .env, then builds/starts containers on given port
+make down                # Stops containers and removes volumes
+make migrate             # Runs Django migrations inside the 'web' container
+make test                # Runs pytest inside the 'web' container
+make setup               # Creates local venv and installs Python dependencies
+make run [PORT=8000]     # Runs Django locally (bypassing Docker) on given port
+make shell               # Opens Django shell locally (bypassing Docker)
+make check               # Runs Django system checks locally
+make logs                # Shows and follows logs from all running containers

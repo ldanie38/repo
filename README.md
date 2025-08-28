@@ -1,3 +1,8 @@
+## Current State” note up top saying this repo contains both the original FastAPI scaffold and a new Django backend, 
+## here’s how to work with each would orient new contributors instantly.
+
+
+
 # Facebook AI Connector Messenger CRM (Base Project Scaffold Scaffold)
 
 This is the initial scaffold aligned to **Base Project Scaffold Plan** and the **Roadmap**:
@@ -135,8 +140,9 @@ Django runs at: http://localhost:8000
 API endpoints follow /api/... as defined in the project.
 
 
-
+## Django Backend
 ## Lua 
+
 ## Running everything inside Docker 🐳 RECOMMENDED !!!!
 You don’t need a Python virtual environment locally.
 
@@ -163,13 +169,8 @@ pip install -r requirements.txt
 
 
 ## Lua
-## Makefile -- to simplify your life 
+## Makefile 
 
-## to clean whitespace 
-sed -E -i '' $'s/^[ ]{2,}/\t/' Makefile
- 
-
-## Lua
 ## Spins up your Dockerised stack (web + db + volumes).
 make up PORT=8010
 
@@ -190,7 +191,7 @@ make run PORT=8010
 ## Needs your local .env + dependencies installed in venv.
 
 
-## Lua
+
 ## Makefile commands
 
 make up [PORT=8000]      # Checks Docker + .env, then builds/starts containers on given port
@@ -236,8 +237,18 @@ make test PORT=8010
 ## Stop when you’re done:
 make down
 
+
+## Restart your stack:
+docker compose -f docker/docker-compose.yml down
+docker compose -f docker/docker-compose.yml up -d --build
+
+## Verify the app picks up the changes:
+docker compose -f docker/docker-compose.yml exec web env | grep POSTGRES_PORT
+
 ## restart docker containers
 PORT=8000 docker compose -f docker/docker-compose.yml up -d
+
+
 
 ## Database access
 From inside db container:

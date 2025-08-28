@@ -140,9 +140,10 @@ Django runs at: http://localhost:8000
 API endpoints follow /api/... as defined in the project.
 
 
-## Django Backend
+
 ## Lua 
 # Facebook AI Connector Messenger CRM
+## Django Backend
 
 [![Backend CI](https://gitea.birthdaymessaging.io/ctmmediagroup/FbAIConnectCRM/actions/workflows/backend-ci.yml/badge.svg)](https://gitea.birthdaymessaging.io/ctmmediagroup/FbAIConnectCRM/actions/workflows/backend-ci.yml)
 

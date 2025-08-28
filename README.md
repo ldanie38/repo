@@ -193,7 +193,9 @@ make run PORT=8010
 
 
 ## Makefile commands
+sed -E -i '' $'s/^[ ]{2,}/\t/' Makefile 
 
+make restart             # full restart + verify
 make up [PORT=8000]      # Checks Docker + .env, then builds/starts containers on given port
 make down                # Stops containers and removes volumes
 make migrate             # Runs Django migrations inside the 'web' container
@@ -238,7 +240,7 @@ make test PORT=8010
 make down
 
 
-## Restart your stack:
+## Restart your stack: or --->  make restart
 docker compose -f docker/docker-compose.yml down
 docker compose -f docker/docker-compose.yml up -d --build
 

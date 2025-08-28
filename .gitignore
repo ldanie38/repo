@@ -1,4 +1,5 @@
 # --- Environment files ---
+!.env.example
 .env
 .env.*
 docker/.env

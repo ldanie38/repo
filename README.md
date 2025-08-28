@@ -84,6 +84,8 @@ cd <your-repo-name>
 
 3. Create your .env file
 Copy the template and adjust values if needed:
+or since we have .env.example u can run this in bash/zsh  ---> cp .env.example .env
+
 
 PORT=8000
 
@@ -95,6 +97,20 @@ POSTGRES_PORT=5432
 
 SECRET_KEY=dev_secret_key_here
 DEBUG=True
+
+
+☁️ Cloud / Shared DB
+# PORT=8000
+# POSTGRES_DB=ctm_db
+# POSTGRES_USER=team_user
+# POSTGRES_PASSWORD=change_me
+# POSTGRES_HOST=your-cloud-db-host.rds.amazonaws.com
+# POSTGRES_PORT=5432
+# SECRET_KEY=secure_production_key_here
+# DEBUG=False
+# HOST=0.0.0.0
+# RELOAD=False
+
 
 # App server
 HOST=0.0.0.0
@@ -110,11 +126,15 @@ PORT=8000 docker compose -f docker/docker-compose.yml up -d --build
 5. Run migrations & tests
 make migrate PORT=8000
 make test PORT=8000
+or
+docker compose -f docker/docker-compose.yml exec web python manage.py migrate
 
 
 6. Access the app
 Django runs at: http://localhost:8000
 API endpoints follow /api/... as defined in the project.
+
+
 
 ## Lua 
 ## Running everything inside Docker 🐳 RECOMMENDED !!!!
@@ -218,6 +238,11 @@ make down
 
 ## restart docker containers
 PORT=8000 docker compose -f docker/docker-compose.yml up -d
+
+## Database access
+From inside db container:
+docker compose -f docker/docker-compose.yml exec db psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"
+
 ## run to open SQL shell
 docker compose -f docker/docker-compose.yml exec web python manage.py dbshell
 ## if u see ctm_db=#  means Django successfully connected to your Postgres database
@@ -230,6 +255,50 @@ docker compose -f docker/docker-compose.yml exec web python manage.py dbshell
 \q or CTRL+D
 
 
+## Lua 
+## Architecture Overview
+
+         ┌────────────────────┐
+         │   CRM Extension    │         
+         │ (Browser Frontend) │
+         └─────────┬──────────┘
+                   │  API calls
+                   ▼
+         ┌────────────────────┐
+         │    Django Backend  │
+         │ (Docker Container) │
+         └──────┬─────┬───────┘
+                │     │
+      Background│     │REST API
+        Jobs    │     │Endpoints
+   (Connector   │     │
+    Automations)│     │
+                ▼     ▼
+         ┌────────────────────┐
+         │   PostgreSQL DB    │
+         │(Local or Cloud via │
+         │   Docker Network)  │
+         └────────────────────┘
 
 
 
+## or 
+
+
+🖥️  CRM Extension (Browser UI)
+     ⇅  API requests/responses
+🛠️  Django Backend (in Docker)
+     ├── 📡 REST API Endpoints
+     └── ⚙️ Background Jobs (Connector automations)
+           ⇅
+🗄️  PostgreSQL Database (Local Docker or Cloud)
+
+
+## How it flows:
+The CRM Extension UI sends/receives data via Django’s REST API.
+
+The Connector module runs background automation jobs (can be triggered by the UI or backend dashboard).
+
+Both the UI and background jobs use the same PostgreSQL database as the single source of truth.
+
+Database can be local via Docker Compose or cloud‑hosted — swap by updating .env

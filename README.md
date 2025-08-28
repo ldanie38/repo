@@ -142,6 +142,10 @@ API endpoints follow /api/... as defined in the project.
 
 ## Django Backend
 ## Lua 
+# Facebook AI Connector Messenger CRM
+
+[![Backend CI](https://gitea.birthdaymessaging.io/ctmmediagroup/FbAIConnectCRM/actions/workflows/backend-ci.yml/badge.svg)](https://gitea.birthdaymessaging.io/ctmmediagroup/FbAIConnectCRM/actions/workflows/backend-ci.yml)
+
 
 ## Running everything inside Docker 🐳 RECOMMENDED !!!!
 You don’t need a Python virtual environment locally.

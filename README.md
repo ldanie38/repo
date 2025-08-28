@@ -1,3 +1,8 @@
+## Current State” note up top saying this repo contains both the original FastAPI scaffold and a new Django backend, 
+## here’s how to work with each would orient new contributors instantly.
+
+
+
 # Facebook AI Connector Messenger CRM (Base Project Scaffold Scaffold)
 
 This is the initial scaffold aligned to **Base Project Scaffold Plan** and the **Roadmap**:
@@ -84,6 +89,8 @@ cd <your-repo-name>
 
 3. Create your .env file
 Copy the template and adjust values if needed:
+or since we have .env.example u can run this in bash/zsh  ---> cp .env.example .env
+
 
 PORT=8000
 
@@ -95,6 +102,20 @@ POSTGRES_PORT=5432
 
 SECRET_KEY=dev_secret_key_here
 DEBUG=True
+
+
+☁️ Cloud / Shared DB
+# PORT=8000
+# POSTGRES_DB=ctm_db
+# POSTGRES_USER=team_user
+# POSTGRES_PASSWORD=change_me
+# POSTGRES_HOST=your-cloud-db-host.rds.amazonaws.com
+# POSTGRES_PORT=5432
+# SECRET_KEY=secure_production_key_here
+# DEBUG=False
+# HOST=0.0.0.0
+# RELOAD=False
+
 
 # App server
 HOST=0.0.0.0
@@ -110,13 +131,23 @@ PORT=8000 docker compose -f docker/docker-compose.yml up -d --build
 5. Run migrations & tests
 make migrate PORT=8000
 make test PORT=8000
+or
+docker compose -f docker/docker-compose.yml exec web python manage.py migrate
 
 
 6. Access the app
 Django runs at: http://localhost:8000
 API endpoints follow /api/... as defined in the project.
 
+
+
 ## Lua 
+# Facebook AI Connector Messenger CRM
+## Django Backend
+
+[![Backend CI](https://gitea.birthdaymessaging.io/ctmmediagroup/FbAIConnectCRM/actions/workflows/backend-ci.yml/badge.svg)](https://gitea.birthdaymessaging.io/ctmmediagroup/FbAIConnectCRM/actions/workflows/backend-ci.yml)
+
+
 ## Running everything inside Docker 🐳 RECOMMENDED !!!!
 You don’t need a Python virtual environment locally.
 
@@ -128,7 +159,8 @@ Your .env just feeds values into the container.
 ## Lua
 ## Running Python tooling locally (outside Docker) if u want but dont do it 
 
-run manage.py commands without docker compose exec
+run manage.py 
+## commands without docker compose exec
 
 use Django shell directly on their host
 
@@ -142,13 +174,8 @@ pip install -r requirements.txt
 
 
 ## Lua
-## Makefile -- to simplify your life 
+## Makefile 
 
-## to clean whitespace 
-sed -E -i '' $'s/^[ ]{2,}/\t/' Makefile
- 
-
-## Lua
 ## Spins up your Dockerised stack (web + db + volumes).
 make up PORT=8010
 
@@ -169,9 +196,11 @@ make run PORT=8010
 ## Needs your local .env + dependencies installed in venv.
 
 
-## Lua
-## Makefile commands
 
+## Makefile commands
+sed -E -i '' $'s/^[ ]{2,}/\t/' Makefile 
+
+make restart             # full restart + verify
 make up [PORT=8000]      # Checks Docker + .env, then builds/starts containers on given port
 make down                # Stops containers and removes volumes
 make migrate             # Runs Django migrations inside the 'web' container
@@ -184,6 +213,22 @@ make logs                # Shows and follows logs from all running containers
 
 
 ## WORKFLOW from here
+
+## start or reatrt your stack
+PORT=8010 docker compose -f docker/docker-compose.yml up -d --build
+
+## check container status
+docker compose -f docker/docker-compose.yml ps
+
+## apply migrations
+docker compose -f docker/docker-compose.yml exec web python manage.py migrate
+
+Spins up containers
+
+Waits for DB readiness
+
+Runs migrations in one go
+
 
 make up PORT=8010        # start stack and follow logs
 # in another tab:
@@ -199,8 +244,23 @@ make test PORT=8010
 ## Stop when you’re done:
 make down
 
+
+## Restart your stack: or --->  make restart
+docker compose -f docker/docker-compose.yml down
+docker compose -f docker/docker-compose.yml up -d --build
+
+## Verify the app picks up the changes:
+docker compose -f docker/docker-compose.yml exec web env | grep POSTGRES_PORT
+
 ## restart docker containers
 PORT=8000 docker compose -f docker/docker-compose.yml up -d
+
+
+
+## Database access
+From inside db container:
+docker compose -f docker/docker-compose.yml exec db psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"
+
 ## run to open SQL shell
 docker compose -f docker/docker-compose.yml exec web python manage.py dbshell
 ## if u see ctm_db=#  means Django successfully connected to your Postgres database
@@ -213,6 +273,50 @@ docker compose -f docker/docker-compose.yml exec web python manage.py dbshell
 \q or CTRL+D
 
 
+## Lua 
+## Architecture Overview
+
+         ┌────────────────────┐
+         │   CRM Extension    │         
+         │ (Browser Frontend) │
+         └─────────┬──────────┘
+                   │  API calls
+                   ▼
+         ┌────────────────────┐
+         │    Django Backend  │
+         │ (Docker Container) │
+         └──────┬─────┬───────┘
+                │     │
+      Background│     │REST API
+        Jobs    │     │Endpoints
+   (Connector   │     │
+    Automations)│     │
+                ▼     ▼
+         ┌────────────────────┐
+         │   PostgreSQL DB    │
+         │(Local or Cloud via │
+         │   Docker Network)  │
+         └────────────────────┘
 
 
 
+## or 
+
+
+🖥️  CRM Extension (Browser UI)
+     ⇅  API requests/responses
+🛠️  Django Backend (in Docker)
+     ├── 📡 REST API Endpoints
+     └── ⚙️ Background Jobs (Connector automations)
+           ⇅
+🗄️  PostgreSQL Database (Local Docker or Cloud)
+
+
+## How it flows:
+The CRM Extension UI sends/receives data via Django’s REST API.
+
+The Connector module runs background automation jobs (can be triggered by the UI or backend dashboard).
+
+Both the UI and background jobs use the same PostgreSQL database as the single source of truth.
+
+Database can be local via Docker Compose or cloud‑hosted — swap by updating .env

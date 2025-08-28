@@ -43,3 +43,8 @@ check:
 logs:
 	PORT=$(PORT) docker compose -f $(COMPOSE_FILE) logs -f
 
+restart: down
+	PORT=$(PORT) docker compose -f $(COMPOSE_FILE) up -d --build
+	PORT=$(PORT) docker compose -f $(COMPOSE_FILE) exec web env | grep POSTGRES_PORT
+
+

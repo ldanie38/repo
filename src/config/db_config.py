@@ -1,15 +1,21 @@
 import os
-from dotenv import load_dotenv
+import socket
 import psycopg2
-
-# Load .env variables
-load_dotenv()
 
 DB_NAME = os.getenv("POSTGRES_DB")
 DB_USER = os.getenv("POSTGRES_USER")
 DB_PASSWORD = os.getenv("POSTGRES_PASSWORD")
-DB_HOST = os.getenv("POSTGRES_HOST", "localhost")
-DB_PORT = os.getenv("POSTGRES_PORT", "5433")
+
+# Detect environment: inside Docker or on host
+def running_in_docker():
+    return os.path.exists("/.dockerenv") or socket.gethostname().startswith("docker")
+
+if running_in_docker():
+    DB_HOST = os.getenv("POSTGRES_HOST", "db")      # Docker service name
+    DB_PORT = os.getenv("POSTGRES_PORT", "5432")    # internal Docker port
+else:
+    DB_HOST = os.getenv("POSTGRES_HOST", "localhost")
+    DB_PORT = os.getenv("POSTGRES_PORT", "5433")    # host-mapped port
 
 def get_connection():
     return psycopg2.connect(
@@ -19,6 +25,7 @@ def get_connection():
         host=DB_HOST,
         port=DB_PORT
     )
+
 
 
 ## This snippet pulls PostgreSQL connection settings from environment variables and defines a helper function, 

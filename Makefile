@@ -2,6 +2,27 @@
 PORT ?= 8000
 COMPOSE_FILE = docker/docker-compose.yml
 SRC_PATH := $(shell pwd)/src
+# Default shell
+SHELL := /bin/bash
+
+setup:
+	@echo "🚀 Starting full project setup..."
+	# 1. Copy env file if it doesn't exist
+	@if [ ! -f .env ]; then \
+	cp .env.example .env && echo "✅ .env created from .env.example"; \
+	else \
+	echo "ℹ️  .env already exists, skipping copy"; \
+	fi
+	# 2. Build and start containers
+	cd docker && docker compose up --build -d
+	# 3. Apply Django migrations
+	cd docker && docker compose exec web python manage.py migrate
+	# 4. Create superuser if none exists
+	cd docker && docker compose exec web bash -c "echo 'from django.contrib.auth import get_user_model; \
+	User = get_user_model(); \
+	User.objects.create_superuser(\"admin@example.com\", \"adminpass\") if not User.objects.exists() else print(\"Superuser already exists\")' | python manage.py shell"
+	@echo "🎯 Setup complete! Visit http://localhost:8000/admin"
+
 
 # --- Phony targets ---
 .PHONY: up down migrate test setup check-docker check-env run shell check logs

@@ -1,0 +1,11 @@
+import logging
+import sys
+import os
+
+os.makedirs("logs", exist_ok=True)
+
+logger = logging.getLogger("app_logger")
+logger.setLevel(logging.DEBUG)
+
+console_handler = logging.StreamHandler(sys.stdout)   
+file_handler = logging.FileHandler("logs/app.log")  

@@ -24,10 +24,17 @@ from rest_framework_simplejwt.views import (
 )
 
 urlpatterns = [
-    path("", home, name="home"),  # static landing page
-    path('admin/', admin.site.urls), ##Superuser login to admin: /admin/
-    path('api/auth/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'), ##JWT login for API:
-    path('api/auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'), ##Token refresh
-    path('api/auth/', include('auth_app.urls')), ##Other auth endpoints from auth_app
+    path("", home, name="home"),
+    path("admin/", admin.site.urls),
     
+    # Legacy auth endpoints
+    path("api/auth/login/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/auth/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("api/auth/", include("auth_app.urls")),
+
+    # Versioned API endpoints
+    path("api/v1/auth/token/", TokenObtainPairView.as_view(), name="token_obtain_pair_v1"),
+    path("api/v1/auth/token/refresh/", TokenRefreshView.as_view(), name="token_refresh_v1"),
+    path("api/v1/", include("crm.urls", namespace="crm")),
 ]
+

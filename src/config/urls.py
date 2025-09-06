@@ -25,9 +25,9 @@ from rest_framework_simplejwt.views import (
 
 urlpatterns = [
     path("", home, name="home"),  # static landing page
-    path('admin/', admin.site.urls),
-    path('api/auth/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/auth/', include('auth_app.urls')),
+    path('admin/', admin.site.urls), ##Superuser login to admin: /admin/
+    path('api/auth/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'), ##JWT login for API:
+    path('api/auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'), ##Token refresh
+    path('api/auth/', include('auth_app.urls')), ##Other auth endpoints from auth_app
     
 ]

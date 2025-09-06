@@ -7,3 +7,5 @@ def create_user(username: str, password: str, email: str = ""):
         email=email,
         password=make_password(password)
     )
+
+## this  password is properly hashed before storing it in the database.

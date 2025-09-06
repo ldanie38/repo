@@ -7,3 +7,7 @@ urlpatterns = [
     path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
+
+
+##This urlpatterns block wires up three API endpoints 
+##for user registration and JWT-based authentication using Django REST Framework and Simple JWT.

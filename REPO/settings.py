@@ -50,7 +50,7 @@ DATABASES = {
 STATIC_URL = "static/"
 
 MIDDLEWARE = [
-    "src.middleware.error_handler.ErrorHandlerMiddleware",  
+    "REPO.middleware.error_handler.ErrorHandlerMiddleware",  
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",

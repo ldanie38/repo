@@ -320,3 +320,29 @@ The Connector module runs background automation jobs (can be triggered by the UI
 Both the UI and background jobs use the same PostgreSQL database as the single source of truth.
 
 Database can be local via Docker Compose or cloud‑hosted — swap by updating .env
+
+# Ali
+# Issue 9 - Error Handler and Logging
+Created a middleware file
+	I made a new file at /repo/middleware/error_handler.py.
+	This file contains a special class that runs on every request before and after Django handles it.
+Caught different types of errors
+	If a validation error happens → return a clear JSON response with status 400.
+	If a database error happens → return a JSON response with status 500.
+	If an authentication/permission error happens → return a JSON response with status 403.
+	If any other unexpected error happens → log it fully and returns a JSON response with status 500.
+Set up logging
+	Installed and configured Python’s logging system in settings.py.
+	Logs now go to two places:
+	The console (so developers can see them while running the server).
+	A log file at /logs/app.log (so errors are saved for later review).
+ Tested the setup
+	Added routes like / and /test/.
+	Confirmed that visiting / shows a success message, and /test/ triggers a validation error.
+     Verified that both the console and /logs/app.log record the error.
+
+init__.py → lets Python treat this folder as a module.
+urls.py → maps URLs to views (your site’s “menu”).
+wsgi.py → entry point for production servers.
+asgi.py → entry point for async servers (e.g., WebSockets).
+_pycache__/ → just cached Python files for speed.

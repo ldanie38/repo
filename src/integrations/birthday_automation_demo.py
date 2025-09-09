@@ -4,6 +4,20 @@ from src.integrations.sendgrid_client import SendGridClient
 ##cd repo
 ## python -m src.integrations.birthday_automation_demo
 
+## For real API calls, just remove the with patch... block and call the methods directly:
+
+#fb_post = fb.create_post("123456789", "Happy Birthday, Alex! 🎉 Enjoy 20% off today!")
+#print(f"[Facebook] Created post: {fb_post.json()}")
+
+#email_resp = sendgrid.send_email(
+    #from_email="hello@mybakery.com",
+    #to_email="alex@example.com",
+    #subject="Happy Birthday from My Bakery 🎂",
+    #content="We hope you have an amazing day! Stop by for a free cupcake."
+#)
+#print(f"[SendGrid] Email status: {email_resp.json()}")
+
+
 
 def run_demo():
     fb = FacebookClient()

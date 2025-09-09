@@ -24,3 +24,7 @@ class BaseAPIClient:
 
     def delete(self, endpoint):
         return requests.delete(f"{self.base_url}{endpoint}")
+    
+    def patch(self, endpoint, data=None, json=None, headers=None):
+        return requests.patch(f"{self.base_url}{endpoint}", data=data, json=json, headers=headers) ## just like put but calls requests.patch.
+

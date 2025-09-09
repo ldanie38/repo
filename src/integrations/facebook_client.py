@@ -1,5 +1,6 @@
 import os
 from .base_client import BaseAPIClient
+## It inherits from BaseAPIClient, so it automatically gets get, post, put, and delete
 
 class FacebookClient(BaseAPIClient):
     def __init__(self):

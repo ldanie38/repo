@@ -1,8 +1,9 @@
 
 # shared request logic
+# is like a control for talking to any web API
 
 import os
-import requests
+import requests ##sends HTTP requests
 from dotenv import load_dotenv
 
 load_dotenv()

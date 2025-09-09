@@ -8,26 +8,35 @@ class FacebookClient(BaseAPIClient):
             api_key=os.getenv("FACEBOOK_API_KEY")
         )
 
-    def get_campaign(self, campaign_id):
-        return self.get(f"/{campaign_id}", params={"access_token": self.api_key})
-
-    def create_campaign(self, ad_account_id, data):
+    def create_post(self, page_id, message):
         return self.post(
-            f"/act_{ad_account_id}/campaigns",
-            json=data,
+            f"/{page_id}/feed",
+            json={"message": message},
             params={"access_token": self.api_key}
         )
 
-    def update_campaign(self, campaign_id, data):
+    def upload_photo(self, page_id, image_url, caption=""):
         return self.post(
-            f"/{campaign_id}",
-            json=data,
+            f"/{page_id}/photos",
+            json={"url": image_url, "caption": caption},
             params={"access_token": self.api_key}
         )
 
-    def delete_campaign(self, campaign_id):
+    def get_post(self, post_id):
+        return self.get(
+            f"/{post_id}",
+            params={"access_token": self.api_key}
+        )
+
+    def update_post(self, post_id, message):
+        return self.post(
+            f"/{post_id}",
+            json={"message": message},
+            params={"access_token": self.api_key}
+        )
+
+    def delete_post(self, post_id):
         return self.delete(
-            f"/{campaign_id}",
+            f"/{post_id}",
             params={"access_token": self.api_key}
         )
-

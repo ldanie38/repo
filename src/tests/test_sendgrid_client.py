@@ -1,6 +1,9 @@
 import unittest
 from unittest.mock import patch, MagicMock
 from src.integrations.sendgrid_client import SendGridClient
+## python -m unittest -v src.tests.test_sendgrid_client
+## python -m unittest -v src/tests/test_sendgrid_client.py
+
 
 class TestSendGridClient(unittest.TestCase):
 

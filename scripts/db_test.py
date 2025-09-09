@@ -7,7 +7,7 @@ load_dotenv()
 
 def main():
     host = os.getenv("POSTGRES_HOST", "db")
-    port = os.getenv("POSTGRES_PORT", "5432")
+    port = os.getenv("POSTGRES_PORT", "5433")
     try:
         conn = psycopg2.connect(
             dbname=os.getenv("POSTGRES_DB"),

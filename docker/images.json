@@ -1,16 +1,16 @@
 {
-  "_id": "ObjectId", // Unique identifier for the image
+  "_id": "ObjectId", 
   "userId": {
-    "type": "ObjectId", // Foreign Key referencing the 'users' collection
+    "type": "ObjectId", 
     "ref": "users",
     "required": true
   },
   "url": {
-    "type": "String", // The URL where the image is hosted/stored
+    "type": "String", 
     "required": true
   },
   "filename": {
-    "type": "String", // Original filename, for user reference
+    "type": "String", 
     "required": true
   },
   "createdAt": {

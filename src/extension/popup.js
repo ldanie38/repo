@@ -1,37 +1,28 @@
-const resultEl = document.getElementById('apiResult');
-const btn = document.getElementById('testApi');
-const saveBtn = document.getElementById('saveFilters');
-const loadBtn = document.getElementById('loadFilters');
+document.getElementById('loginBtn').addEventListener('click', async () => {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value.trim();
+  const statusDiv = document.getElementById('status');
 
-const companies = document.getElementById('companies');
-const tags = document.getElementById('tags');
-const recent = document.getElementById('recent');
+  statusDiv.textContent = 'Logging in...';
 
-btn.addEventListener('click', async () => {
-  resultEl.textContent = 'Calling backend...';
   try {
-    const res = await fetch('http://localhost:8000/api/contacts');
+    const res = await fetch('http://localhost:8000/api/auth/login/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    
+    if (!res.ok) {
+      throw new Error(`Login failed: ${res.status}`);
+    }
+
     const data = await res.json();
-    resultEl.textContent = JSON.stringify(data, null, 2);
-  } catch (e) {
-    resultEl.textContent = 'Error: ' + (e?.message || e);
-  }
-});
+    const token = data.access || data.token; // adjust to your DRF JWT response
 
-saveBtn.addEventListener('click', async () => {
-  const payload = { company: companies.value, tags: tags.value, recent: recent.checked };
-  await chrome.storage.local.set({ smartFilters: payload });
-  alert('Filters saved.');
-});
-
-loadBtn.addEventListener('click', async () => {
-  const { smartFilters } = await chrome.storage.local.get('smartFilters');
-  if (smartFilters) {
-    companies.value = smartFilters.company || '';
-    tags.value = smartFilters.tags || '';
-    recent.checked = !!smartFilters.recent;
-    alert('Filters loaded.');
-  } else {
-    alert('No saved filters.');
+    await chrome.storage.local.set({ jwt: token });
+    statusDiv.textContent = '✅ Logged in successfully';
+  } catch (err) {
+    console.error(err);
+    statusDiv.textContent = '❌ Login failed';
   }
 });

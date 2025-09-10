@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>FACRM Popup</title>
+  <style>
+    body { font-family: sans-serif; padding: 10px; width: 280px; }
+    section { margin-bottom: 15px; }
+    button { margin-top: 5px; padding: 5px 10px; }
+    input { display: block; margin: 5px 0; width: 95%; padding: 5px; }
+    pre { background: #f0f0f0; padding: 5px; white-space: pre-wrap; }
+    .status { margin-top: 5px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h2>Facebook AI Connector CRM</h2>
+
+  <!-- Login Section -->
+  <section>
+    <h3>Login</h3>
+    <input id="username" type="text" placeholder="Username" />
+    <input id="password" type="password" placeholder="Password" />
+    <button id="loginBtn">Login</button>
+    <div id="status" class="status"></div>
+  </section>
+
+  <!-- Test API Section -->
+  <section>
+    <h3>Backend Test</h3>
+    <button id="testApi">Test API</button>
+    <pre id="apiResult"></pre>
+  </section>
+
+  <!-- Ping Section -->
+  <section>
+    <h3>Ping Background</h3>
+    <button id="pingBtn">Send Ping</button>
+    <pre id="output"></pre>
+  </section>
+
+  <!-- Extra Buttons Section -->
+  <section>
+    <h3>Extra Actions</h3>
+    <button id="testBtn">Test</button>
+    <button id="signupBtn">Sign Up</button>
+    <button id="signinBtn">Sign In</button>
+  </section>
+
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -3,10 +3,6 @@
   "name": "Facebook AI Connector CRM",
   "version": "0.1.0",
   "description": "Base Project Scaffold popup to call backend and store filter preferences.",
-  "action": {
-    "default_popup": "popup.html",
-    "default_title": "FACRM"
-  },
   "background": {
     "service_worker": "background.js"
   },
@@ -19,11 +15,14 @@
     "http://localhost:8000/*",
     "http://127.0.0.1:8000/*"
   ],
-  "icons": {
-    "16": "icons/icon16.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "FACRM",
+    "default_icon": {
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
   }
 }
-
 

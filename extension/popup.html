@@ -3,15 +3,108 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="https://use.typekit.net/yfd2poq.css">
   <title>FACRM Popup</title>
-  <style>
-    body { font-family: sans-serif; padding: 10px; width: 280px; }
-    section { margin-bottom: 15px; }
-    button { margin-top: 5px; padding: 5px 10px; }
-    input { display: block; margin: 5px 0; width: 95%; padding: 5px; }
-    pre { background: #f0f0f0; padding: 5px; white-space: pre-wrap; }
-    .status { margin-top: 5px; font-weight: bold; }
-  </style>
+<style>
+  body {
+   
+    padding: 15px;
+    width: 300px;
+    background-color: #F5F6F7;
+    color: #1C1C1C;
+  }
+  
+  h2 {
+    color: #495057;
+    margin-bottom: 10px;
+    font-family: "indivisible", sans-serif;
+    font-weight: 500;
+    font-style: normal;
+  }
+  
+  h3 {
+    color: #4a8fe7;
+    margin-bottom: 8px;
+    font-size: 1rem;
+    font-family: "indivisible", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+  }
+  
+  section {
+    margin-bottom: 18px;
+    padding: 10px;
+    background-color: #FFFFFF;
+    border: 1px solid #E0E0E0;
+    border-radius: 8px;
+  }
+  
+  input {
+    display: block;
+    margin: 6px 0;
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #D0D0D0;
+    border-radius: 6px;
+    background-color: #FFFFFF;
+    color: #1C1C1C;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  }
+
+
+  
+  input:focus {
+    border-color: #2979FF;
+    box-shadow: 0 0 0 2px rgba(41, 121, 255, 0.15);
+
+  }
+  
+  button {
+    margin-top: 6px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    background-color: #4a8fe7;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease, transform 0.15s ease;
+    font-family: "indivisible", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+  }
+  
+  button:hover {
+    background-color: #1565C0;
+    transform: translateY(-1px);
+  }
+  
+  pre {
+    background: #F0F0F0;
+    padding: 6px;
+    white-space: pre-wrap;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: #333;
+  }
+  
+  .status {
+    margin-top: 5px;
+    font-weight: bold;
+  }
+  
+  .success {
+    color: #2E7D32; /* subtle green for success */
+  }
+  
+  .error {
+    color: #C62828; /* subtle red for errors */
+  }
+  
+</style>
+  
 </head>
 <body>
   <h2>Facebook AI Connector CRM</h2>

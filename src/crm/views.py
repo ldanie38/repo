@@ -2,8 +2,8 @@ from django.contrib.auth import get_user_model
 from rest_framework import viewsets, permissions, filters
 from .models import Lead, Campaign
 from .serializers import LeadSerializer, CampaignSerializer, UserSerializer
-from .models import Tag, PipelineStage
-from .serializers import TagSerializer, PipelineStageSerializer
+from .models import Tag
+from .serializers import TagSerializer
 
 User = get_user_model()
 
@@ -24,9 +24,6 @@ class TagViewSet(viewsets.ModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
 
-class PipelineStageViewSet(viewsets.ModelViewSet):
-    queryset = PipelineStage.objects.all()
-    serializer_class = PipelineStageSerializer
 
 
 class CampaignViewSet(viewsets.ModelViewSet):

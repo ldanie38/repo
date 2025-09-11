@@ -88,5 +88,83 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const signinBtn = byId('signinBtn');
   if (signinBtn) signinBtn.addEventListener('click', () => console.log('Sign In button clicked'));
-});
 
+  // Function to load lead info + jobs
+  function loadLeadAndJobs() {
+    chrome.storage.local.get(['jwt', 'profileUrl'], ({ jwt, profileUrl }) => {
+      const leadInfoEl = byId('leadInfo');
+      const jobsEl = byId('jobsContainer');
+
+      if (!jwt) {
+        leadInfoEl.textContent = 'Please log in to see lead info.';
+        jobsEl.textContent = 'Please log in to see automation jobs.';
+        return;
+      }
+      if (!profileUrl) {
+        leadInfoEl.textContent = 'Open a Messenger chat to load lead info.';
+        jobsEl.textContent = 'Waiting for profile URL…';
+        return;
+      }
+
+      // Fetch Lead Info
+      fetch(`http://localhost:8000/api/leads/?profile_url=${encodeURIComponent(profileUrl)}`, {
+        headers: { Authorization: `Bearer ${jwt}` }
+      })
+        .then(res => res.json())
+        .then(data => {
+          const lead = Array.isArray(data) ? data[0] : data;
+          if (!lead) {
+            leadInfoEl.textContent = 'No lead found for this profile.';
+            return;
+          }
+
+          const tags = Array.isArray(lead.tags)
+            ? lead.tags.map(tag => `<span style="color:${tag.color}">${tag.name}</span>`).join(', ')
+            : '—';
+
+          leadInfoEl.innerHTML = `
+            <strong>${lead.name || '—'}</strong><br>
+            <em>Stage: ${lead.pipeline_stage?.name || '—'}</em><br>
+            Tags: ${tags || '—'}<br>
+            Notes: ${lead.notes || '—'}
+          `;
+        })
+        .catch(err => {
+          console.error(err);
+          leadInfoEl.textContent = '❌ Failed to fetch lead data.';
+        });
+
+      // Fetch Automation Jobs
+      fetch('http://localhost:8000/api/automation-jobs/', {
+        headers: { Authorization: `Bearer ${jwt}` }
+      })
+        .then(res => res.json())
+        .then(jobs => {
+          if (!Array.isArray(jobs) || jobs.length === 0) {
+            jobsEl.textContent = 'No automation jobs found.';
+            return;
+          }
+          jobsEl.innerHTML = jobs.map(job => `
+            <div>
+              <strong>${job.job_type}</strong> — ${job.status}<br>
+              Progress: ${job.progress}%
+            </div>
+          `).join('');
+        })
+        .catch(err => {
+          console.error(err);
+          jobsEl.textContent = '❌ Failed to fetch jobs.';
+        });
+    });
+  }
+
+  // Run once on popup open
+  loadLeadAndJobs();
+
+  // Re-run whenever jwt or profileUrl changes
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'local' && (changes.jwt || changes.profileUrl)) {
+      loadLeadAndJobs();
+    }
+  });
+});

@@ -17,6 +17,25 @@ class Campaign(models.Model):
 
     def __str__(self):
         return self.name
+    
+class Tag(models.Model):
+    name = models.CharField(max_length=50)
+    color = models.CharField(max_length=7, default="#cccccc")
+
+    def __str__(self):
+        return self.name
+
+
+class PipelineStage(models.Model):
+    name = models.CharField(max_length=100)
+    order = models.PositiveIntegerField()
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ["order"]
+
 
 class Lead(models.Model):
     STATUS_CHOICES = [
@@ -31,7 +50,27 @@ class Lead(models.Model):
     email = models.EmailField()  # make unique=True later if you want
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="new")
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="leads")
-    campaign = models.ForeignKey(Campaign, on_delete=models.SET_NULL, null=True, blank=True, related_name="leads")
+    campaign = models.ForeignKey(
+        Campaign,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="leads"
+    )
+    # NEW FIELDS
+    tags = models.ManyToManyField(
+        Tag,
+        related_name="leads",
+        blank=True
+    )
+    pipeline_stage = models.ForeignKey(
+        PipelineStage,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="leads"
+    )
+
     notes = models.TextField(blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -41,3 +80,7 @@ class Lead(models.Model):
 
     def __str__(self):
         return f"{self.name} <{self.email}>"
+
+    
+    
+

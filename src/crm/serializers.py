@@ -1,8 +1,23 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from .models import Lead, Campaign
+from .models import Tag, PipelineStage
 
 User = get_user_model()
+
+
+
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = "__all__"
+
+class PipelineStageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PipelineStage
+        fields = "__all__"
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:

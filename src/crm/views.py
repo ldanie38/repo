@@ -2,6 +2,8 @@ from django.contrib.auth import get_user_model
 from rest_framework import viewsets, permissions, filters
 from .models import Lead, Campaign
 from .serializers import LeadSerializer, CampaignSerializer, UserSerializer
+from .models import Tag, PipelineStage
+from .serializers import TagSerializer, PipelineStageSerializer
 
 User = get_user_model()
 
@@ -16,6 +18,16 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ["username", "first_name", "last_name", "email"]
     ordering_fields = ["id", "date_joined", "username"]
+    
+
+class TagViewSet(viewsets.ModelViewSet):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+
+class PipelineStageViewSet(viewsets.ModelViewSet):
+    queryset = PipelineStage.objects.all()
+    serializer_class = PipelineStageSerializer
+
 
 class CampaignViewSet(viewsets.ModelViewSet):
     queryset = Campaign.objects.all()

@@ -3,6 +3,7 @@ import json
 import psycopg2
 from pathlib import Path
 
+
 # --- Mapping from JSON keys to Postgres column names ---
 GLOBAL_KEY_MAP = {
     "_id": "id",
@@ -71,3 +72,5 @@ for path in schema_path.glob("*.jsonc"):
         continue
 
     cols = list
+    
+

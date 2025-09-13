@@ -1,6 +1,7 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const byId = id => document.getElementById(id);
+// Helper to get element by ID
+const byId = id => document.getElementById(id);
 
+document.addEventListener('DOMContentLoaded', () => {
   // LOGIN
   const loginBtn = byId('loginBtn');
   if (loginBtn) {
@@ -11,16 +12,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (!username || !password) {
         statusDiv.textContent = '❌ Please enter username and password';
+        statusDiv.className = 'status error';
         return;
       }
 
       statusDiv.textContent = 'Logging in...';
+      statusDiv.className = 'status';
+
       try {
         const res = await fetch('http://localhost:8000/api/auth/login/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username, password })
         });
+
         if (!res.ok) throw new Error(`Login failed: ${res.status}`);
 
         const data = await res.json();
@@ -29,37 +34,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         await chrome.storage.local.set({ jwt: token });
         statusDiv.textContent = '✅ Logged in successfully';
+        statusDiv.className = 'status success';
+
+        // Open landing page in a new tab
+        chrome.tabs.create({ url: "http://localhost:8000/extension/landing/" });
+
       } catch (err) {
         console.error(err);
         statusDiv.textContent = '❌ Login failed';
+        statusDiv.className = 'status error';
       }
-    });
-  }
-
-  // TEST API
-  const testApiBtn = byId('testApi');
-  if (testApiBtn) {
-    testApiBtn.addEventListener('click', () => {
-      const resultBox = byId('apiResult');
-      resultBox.textContent = 'Calling API...';
-
-      chrome.storage.local.get('jwt', ({ jwt }) => {
-        if (!jwt) {
-          resultBox.textContent = '❌ No token found. Please log in first.';
-          return;
-        }
-        chrome.runtime.sendMessage({ action: 'testApi', token: jwt }, (response) => {
-          if (chrome.runtime.lastError) {
-            resultBox.textContent = `Extension error: ${chrome.runtime.lastError.message}`;
-            return;
-          }
-          if (response.success) {
-            resultBox.textContent = JSON.stringify(response.data, null, 2);
-          } else {
-            resultBox.textContent = `Error: ${response.error}`;
-          }
-        });
-      });
     });
   }
 
@@ -89,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const signinBtn = byId('signinBtn');
   if (signinBtn) signinBtn.addEventListener('click', () => console.log('Sign In button clicked'));
 
-  // Function to load lead info + jobs
+  // Load lead info + jobs
   function loadLeadAndJobs() {
     chrome.storage.local.get(['jwt', 'profileUrl'], ({ jwt, profileUrl }) => {
       const leadInfoEl = byId('leadInfo');

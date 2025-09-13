@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FACRM Connector</title>
+  <link rel="stylesheet" href="{% static 'styles.css' %}">
+  <link rel="stylesheet" href="/static/styles.css">
+
+</head>
+<body>
+  <header>
+    <h1>FACRM Connector</h1>
+  </header>
+
+  <section class="hero">
+    <h2>Turn Messenger into Your CRM</h2>
+    <p>Tag, track, and manage leads without leaving Facebook Messenger. Connect your extension to your FACRM account to sync data in real time.</p>
+    <div class="cta-buttons">
+      <a href="https://chrome.google.com/webstore/detail/YOUR_EXTENSION_ID">Install Extension</a>
+      <a href="{% url 'extension_landing' %}">Connect Account</a>
+    </div>
+  </section>
+
+  <section class="features">
+    <div class="feature">
+      <h3>🏷 Tag Leads</h3>
+      <p>Organize contacts with custom tags synced to your CRM.</p>
+    </div>
+    <div class="feature">
+      <h3>📊 Pipeline Stages</h3>
+      <p>Move leads from Prospect to Customer with one click.</p>
+    </div>
+    <div class="feature">
+      <h3>📝 Notes</h3>
+      <p>Save conversation notes directly from Messenger.</p>
+    </div>
+    <div class="feature">
+      <h3>📅 Follow-ups</h3>
+      <p>Set reminders and never miss a lead opportunity.</p>
+    </div>
+  </section>
+
+  <footer>
+    &copy; {{ now|date:"Y" }} FACRM — <a href="/docs">Docs</a> | <a href="/privacy">Privacy</a> | <a href="/support">Support</a>
+  </footer>
+</body>
+</html>

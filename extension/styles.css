@@ -1,7 +1,0 @@
-body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; margin: 12px; }
-h1 { font-size: 16px; margin-bottom: 12px; }
-.card { border: 1px solid #eee; padding: 10px; border-radius: 8px; margin-bottom: 12px; }
-label { display:block; font-size: 12px; margin-top: 8px; }
-input, select, button { margin-top: 6px; }
-.row { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
-#apiResult { background:#fafafa; border:1px solid #eee; padding:6px; border-radius:6px; max-height:120px; overflow:auto; }

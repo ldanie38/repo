@@ -50,6 +50,42 @@
       <h3>📅 Follow-ups</h3>
       <p>Set reminders and never miss a lead opportunity.</p>
     </div>
+    <div class="feature">
+      <h3>✉️ Messages</h3>
+      <p>View, send, and organize all your Messenger conversations in one place.</p>
+    </div>
+    <div class="feature">
+      <h3>🏷 Show Labels in Facebook</h3>
+      <p>Toggle to display relationship </p>
+      
+      <label class="switch">
+        <input type="checkbox" id="showLabelsToggle">
+        <span class="slider round"></span>
+      </label>
+    </div>
+    
+    
+    <script>
+    document.getElementById('showLabelsToggle').addEventListener('change', function() {
+      if (this.checked) {
+        console.log('Labels ON');
+        // Here you could trigger your JS to show labels in Messenger
+      } else {
+        console.log('Labels OFF');
+        // Here you could trigger your JS to hide labels in Messenger
+      }
+    });
+    </script>
+    
+    
+    <div class="feature">
+      <p>
+        <a href="">Update Password</a> &nbsp;||&nbsp;
+        <a href="">Log Out</a>
+      </p>
+    </div>
+    
+
   </section>
 
   <footer>

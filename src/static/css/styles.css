@@ -244,3 +244,15 @@ footer a:hover { text-decoration: underline; }
       input:checked + .slider:before {
         transform: translateX(24px);
       }
+
+      .feature {
+        border: 1px solid #ddd;
+        padding: 10px;
+        margin: 5px 0;
+        background: #fff;
+        cursor: move;
+      }
+      .feature.dragging {
+        opacity: 0.5;
+      }
+      

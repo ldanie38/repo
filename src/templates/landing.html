@@ -88,8 +88,52 @@
 
   </section>
 
+
   <footer>
     &copy; {{ now|date:"Y" }} FACRM — <a href="/docs">Docs</a> | <a href="/privacy">Privacy</a> | <a href="/support">Support</a>
   </footer>
+  
+  <script>
+    const featuresContainer = document.querySelector('.features');
+    const featureItems = document.querySelectorAll('.feature');
+  
+    featureItems.forEach(item => {
+      item.setAttribute('draggable', 'true');
+  
+      item.addEventListener('dragstart', () => {
+        item.classList.add('dragging');
+      });
+  
+      item.addEventListener('dragend', () => {
+        item.classList.remove('dragging');
+      });
+    });
+  
+    featuresContainer.addEventListener('dragover', e => {
+      e.preventDefault();
+      const afterElement = getDragAfterElement(featuresContainer, e.clientY);
+      const dragging = document.querySelector('.dragging');
+      if (afterElement == null) {
+        featuresContainer.appendChild(dragging);
+      } else {
+        featuresContainer.insertBefore(dragging, afterElement);
+      }
+    });
+  
+    function getDragAfterElement(container, y) {
+      const draggableElements = [...container.querySelectorAll('.feature:not(.dragging)')];
+  
+      return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+          return { offset: offset, element: child };
+        } else {
+          return closest;
+        }
+      }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+  </script>
+  
 </body>
 </html>

@@ -35,6 +35,20 @@
 
   <section class="features">
     <div class="feature">
+      <h3>Create Label</h3>
+      <p>ex: customer, warm lead, cold lead, family</p>
+      
+      <input 
+        type="text" 
+        id="newLabelInput" 
+        placeholder="Enter label name" 
+        style="width: 100%; padding: 6px; margin-top: 5px;"
+      >
+      
+      <button id="createLabelBtn" style="margin-top: 8px;">Add Label</button>
+    </div>
+    
+    <div class="feature">
       <h3>🏷 Tag Leads</h3>
       <p>Organize contacts with custom tags synced to your CRM.</p>
     </div>
@@ -65,17 +79,7 @@
     </div>
     
     
-    <script>
-    document.getElementById('showLabelsToggle').addEventListener('change', function() {
-      if (this.checked) {
-        console.log('Labels ON');
-        // Here you could trigger your JS to show labels in Messenger
-      } else {
-        console.log('Labels OFF');
-        // Here you could trigger your JS to hide labels in Messenger
-      }
-    });
-    </script>
+
     
     
     <div class="feature">
@@ -92,7 +96,21 @@
   <footer>
     &copy; {{ now|date:"Y" }} FACRM — <a href="/docs">Docs</a> | <a href="/privacy">Privacy</a> | <a href="/support">Support</a>
   </footer>
-  
+  <!-- togle button-->
+  <script>
+    document.getElementById('showLabelsToggle').addEventListener('change', function() {
+      if (this.checked) {
+        console.log('Labels ON');
+        // Here you could trigger your JS to show labels in Messenger
+      } else {
+        console.log('Labels OFF');
+        // Here you could trigger your JS to hide labels in Messenger
+      }
+    });
+    </script>
+   
+  <!-- Drag and drop -->
+
   <script>
     const featuresContainer = document.querySelector('.features');
     const featureItems = document.querySelectorAll('.feature');
@@ -134,6 +152,9 @@
       }, { offset: Number.NEGATIVE_INFINITY }).element;
     }
   </script>
+  <!-- Drag and drop end -->
+
+  
   
 </body>
 </html>

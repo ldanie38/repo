@@ -21,76 +21,60 @@
 
 <body>
   <header>
-    <h1>FACRM Connector</h1>
+    <h1>Facebook CRM</h1>
+    <!--- <p>Your connector that turns Facebook Messenger into a lightweight customer relationship manager</p>-->
   </header>
 
   <section class="hero">
-    <h2>Turn Messenger into Your CRM</h2>
-    <p>Tag, track, and manage leads without leaving Facebook Messenger. Connect your extension to your FACRM account to sync data in real time.</p>
     <div class="cta-buttons">
       <a href="https://chrome.google.com/webstore/detail/YOUR_EXTENSION_ID">Install Extension</a>
       <a href="{% url 'extension_landing' %}">Connect Account</a>
     </div>
   </section>
+  <div class="two-column">
+    
+    <!-- Right column content first in HTML -->
+    <div class="container_right">
+      <div class="feature">
+        
+        <h3>🏷 Show Labels in Facebook</h3>
+        <p>Toggle to display relationship</p>
+        <label class="switch">
+          <input type="checkbox" id="showLabelsToggle">
+          <span class="slider round"></span>
+        </label>
+      </div>
+  
+      <div class="feature">
+        <h3>✉️ Messages</h3>
+        <p>View, send, and organize all your Messenger conversations in one place.</p>
+      </div>
+  
+      <div class="feature">
+        <p>
+          <a href="">Update Password</a> &nbsp;||&nbsp;
+          <a href="">Log Out</a>
+        </p>
+      </div>
+    </div>
+  
+    <!-- Left column content second in HTML -->
+    <div class="container_left">
+      <section class="label">
+        <h3>Create Label</h3>
+        <input type="text" id="newLabelInput" placeholder="Enter label name">
+        <button id="createLabelBtn">Add Label</button>
+      </section>
+    </div>
+  </div>
+  
+  
 
-  <section class="features">
-    <div class="feature">
-      <h3>Create Label</h3>
-      <p>ex: customer, warm lead, cold lead, family</p>
-      
-      <input 
-        type="text" 
-        id="newLabelInput" 
-        placeholder="Enter label name" 
-        style="width: 100%; padding: 6px; margin-top: 5px;"
-      >
-      
-      <button id="createLabelBtn" style="margin-top: 8px;">Add Label</button>
-    </div>
-    
-    <div class="feature">
-      <h3>🏷 Tag Leads</h3>
-      <p>Organize contacts with custom tags synced to your CRM.</p>
-    </div>
-    <div class="feature">
-      <h3>📊 Pipeline Stages</h3>
-      <p>Move leads from Prospect to Customer with one click.</p>
-    </div>
-    <div class="feature">
-      <h3>📝 Notes</h3>
-      <p>Save conversation notes directly from Messenger.</p>
-    </div>
-    <div class="feature">
-      <h3>📅 Follow-ups</h3>
-      <p>Set reminders and never miss a lead opportunity.</p>
-    </div>
-    <div class="feature">
-      <h3>✉️ Messages</h3>
-      <p>View, send, and organize all your Messenger conversations in one place.</p>
-    </div>
-    <div class="feature">
-      <h3>🏷 Show Labels in Facebook</h3>
-      <p>Toggle to display relationship </p>
-      
-      <label class="switch">
-        <input type="checkbox" id="showLabelsToggle">
-        <span class="slider round"></span>
-      </label>
-    </div>
-    
-    
 
-    
-    
-    <div class="feature">
-      <p>
-        <a href="">Update Password</a> &nbsp;||&nbsp;
-        <a href="">Log Out</a>
-      </p>
-    </div>
-    
 
-  </section>
+
+
+
 
 
   <footer>

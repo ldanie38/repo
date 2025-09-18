@@ -42,4 +42,4 @@ class LeadSerializer(serializers.ModelSerializer):
 class LabelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Label
-        fields = ["id", "name"]
+        fields = ["id", "name", "color"]

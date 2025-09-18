@@ -15,6 +15,13 @@
   <link rel="icon" type="image/png" sizes="48x48" href="{% static 'favicons/favicon-48x48.png' %}">
   <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicons/favicon-32x32.png' %}">
   <link rel="icon" type="image/png" sizes="16x16" href="{% static 'favicons/favicon-16x16.png' %}">
+
+   <!-- brush icon -->
+  <link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+/>
+
   
 
 </head>
@@ -58,26 +65,34 @@
       </div>
     </div>
   
-    <!-- Left column content second in HTML -->
+   
     <div class="container_left">
       <section class="label">
         <h3>Create Label</h3>
-        <input type="text" id="newLabelInput" placeholder="Enter label name">
+        <input type="text" id="newLabelInput" placeholder="Enter label name" />
+        <input
+          type="color"
+          id="newLabelColorInput"
+          value="#ff0000"
+          style="display: none;"
+        />
+        <i
+          class="fa-solid fa-paint-brush brush-icon"
+          style="color:#5390d9; cursor: pointer; margin: 0 0.5rem; vertical-align: middle;"
+          title="Choose label color"
+        ></i>
         <button id="createLabelBtn">Add Label</button>
       </section>
+
+    <!---to display labels-->
+    <ul id="labelList"></ul>
+    <!---->
     </div>
-  </div>
-  
-  
 
 
+    
 
-
-
-
-
-
-  <footer>
+<footer>
     &copy; {{ now|date:"Y" }} FACRM — <a href="/docs">Docs</a> | <a href="/privacy">Privacy</a> | <a href="/support">Support</a>
   </footer>
   <!-- togle button-->

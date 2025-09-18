@@ -244,7 +244,7 @@
     background: rgba(255,255,255,.3);
   }
   
-  /* ===== Fancy toggle switch ===== */
+  /* =====  toggle switch ===== */
   .switch {
     --h: 28px;
     --w: 52px;
@@ -252,6 +252,7 @@
     display: inline-block;
     width: var(--w);
     height: var(--h);
+    margin-top: 0.625rem;
   }
   .switch input {
     opacity: 0;
@@ -298,8 +299,50 @@
   a:hover {
     text-decoration: underline;
   }
+
+
+  .brush-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    margin: 0 0.5rem;
+    cursor: pointer;
+    vertical-align: middle;
+  }
+  .brush-icon svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
   
-  /* ===== Footer ===== */
+#labelList {
+    margin-top: 18px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    list-style: none;
+    padding: 0;
+  }
+  
+  #labelList li {
+    font-size: 1.5rem;           /* bigger text (~24px) */
+    font-weight: 800;            /* bold but not screaming */
+    padding: 14px 22px;          /* more breathing room */
+    border-radius: 12px;         /* rounded corners */
+    color: #fff;                 /* JS will override for contrast */
+    box-shadow: 0 5px 14px rgba(0,0,0,0.12);
+    cursor: default;
+    width: 15rem;  
+    height: 6rem;          /* keeps a nice pill shape */
+    text-align: center;
+    letter-spacing: 0.3px;
+  }
+  
+  
+  
+  
+
 /* ===== Footer ===== */
 footer {
     background: #f1f5f9;

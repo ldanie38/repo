@@ -12,6 +12,8 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 
 
+
+
 # -------------------------
 # USER VIEWSET
 # -------------------------
@@ -52,8 +54,11 @@ class TagViewSet(viewsets.ModelViewSet):
 # LABEL ENDPOINTS
 # -------------------------
 def list_labels(request):
-    labels = list(Label.objects.values("id", "name"))
+    # Fetch id, name, and color for each label
+    labels = list(Label.objects.values("id", "name", "color"))
     return JsonResponse(labels, safe=False)
+
+
 
 
 @csrf_exempt
@@ -62,14 +67,31 @@ def create_label(request):
         try:
             data = json.loads(request.body)
             name = data.get("name", "").strip()
+            color = data.get("color", "#ffffff").strip()
+
             if not name:
                 return JsonResponse({"error": "Name is required"}, status=400)
 
-            label, created = Label.objects.get_or_create(name=name)
+            label, created = Label.objects.get_or_create(
+                name=name,
+                defaults={"color": color}
+            )
+
+            # If label already existed, update its color if different
+            if not created and label.color != color:
+                label.color = color
+                label.save()
+
             return JsonResponse(
-                {"id": label.id, "name": label.name, "created": created}
+                {
+                    "id": label.id,
+                    "name": label.name,
+                    "color": label.color,
+                    "created": created
+                }
             )
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
 
     return JsonResponse({"error": "Invalid method"}, status=405)
+

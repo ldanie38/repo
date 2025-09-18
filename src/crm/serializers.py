@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from .models import Lead, Campaign, Tag
+from .models import Lead, Campaign, Tag, Label
 
 
 User = get_user_model()
@@ -38,3 +38,8 @@ class LeadSerializer(serializers.ModelSerializer):
             "campaign", "notes", "created_at", "updated_at"
         ]
         read_only_fields = ["id", "owner_username", "created_at", "updated_at"]
+        
+class LabelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Label
+        fields = ["id", "name"]

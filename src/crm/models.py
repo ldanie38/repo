@@ -1,7 +1,6 @@
 from django.db import models
-from django.contrib.auth import get_user_model
+from django.conf import settings  # <--instead of get_user_model
 
-User = get_user_model()
 
 class Campaign(models.Model):
     name = models.CharField(max_length=150)
@@ -17,14 +16,14 @@ class Campaign(models.Model):
 
     def __str__(self):
         return self.name
-    
+
+
 class Tag(models.Model):
     name = models.CharField(max_length=50)
     color = models.CharField(max_length=7, default="#cccccc")
 
     def __str__(self):
         return self.name
-
 
 
 class Lead(models.Model):
@@ -42,7 +41,11 @@ class Lead(models.Model):
     source = models.CharField(max_length=100, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="new")
     is_archived = models.BooleanField(default=False)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="leads")
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,  # <-- safe reference
+        on_delete=models.CASCADE,
+        related_name="leads"
+    )
     campaign = models.ForeignKey(
         Campaign,
         on_delete=models.SET_NULL,
@@ -50,14 +53,11 @@ class Lead(models.Model):
         blank=True,
         related_name="leads"
     )
-    # NEW FIELDS
     tags = models.ManyToManyField(
         Tag,
         related_name="leads",
         blank=True
     )
-
-
     notes = models.TextField(blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -68,6 +68,9 @@ class Lead(models.Model):
     def __str__(self):
         return f"{self.name} <{self.email}>"
 
-    
-    
 
+class Label(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name

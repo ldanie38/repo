@@ -132,7 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
   //
   function addLabelToUI(name, color) {
     const li = document.createElement("li");
-    li.textContent = name;              // ✅ show label name, not color code
+    li.textContent =(name);              // ✅ show label name, not color code
     li.style.backgroundColor = color;   // ✅ use color for background
     li.style.color = getContrastColor(color);
     li.style.padding = "14px 22px";

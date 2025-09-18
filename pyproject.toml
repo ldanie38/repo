@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "new-repo"
+version = "0.1.0"
+description = ""
+authors = ["Lua Daniele"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.13"
+django = ">=4.2,<5.0"
+djangorestframework = ">=3.14,<4.0"
+
+[[tool.poetry.packages]]
+include = "config"
+from    = "src"
+
+[[tool.poetry.packages]]
+include = "backend"
+from    = "src"
+
+[[tool.poetry.packages]]
+include = "extension"
+from    = "src"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

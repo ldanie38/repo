@@ -1,14 +1,12 @@
 name: backend-ci
+
 on:
-  push:
-    paths:
-      - "backend/**"
-  pull_request:
-    paths:
-      - "backend/**"
+  pull_request:    # runs on every PR
+
 jobs:
   test:
-    runs-on: docker
+    runs-on: self-hosted
+
     services:
       postgres:
         image: postgres:16
@@ -16,19 +14,20 @@ jobs:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: facrm
         ports:
-          - "5432:5432"
+          - 5432:5432
+
     steps:
       - uses: actions/checkout@v3
       - name: Setup Python
         run: python --version
-      - name: Install
+      - name: Install dependencies
         working-directory: backend
         run: pip install -e ".[dev]"
-      - name: Lint
+      - name: Run lint
         working-directory: backend
-        run: ruff check . || true
-      - name: Test
+        run: ruff check .
+      - name: Run tests
         working-directory: backend
         env:
           DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/facrm
-        run: pytest -q || true
+        run: pytest -q

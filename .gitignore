@@ -1,0 +1,36 @@
+# --- Environment files ---
+!.env.example
+.env
+.env.*
+docker/.env
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pkl
+
+# --- Virtual environments ---
+venv/
+.venv/
+
+# --- Databases ---
+db.sqlite3
+src/db.sqlite3
+
+# --- Node / Extension ---
+node_modules/
+dist/
+
+# --- OS/editor ---
+.DS_Store
+*.log
+.idea/
+.vscode/
+
+# --- Docker ---
+pgdata/
+
+# --- Pipenv lock (if not versioning it) ---
+Pipfile.lock

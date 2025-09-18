@@ -1,0 +1,20 @@
+{
+  "_id": "ObjectId", // Unique identifier for the image
+  "userId": {
+    "type": "ObjectId", // Foreign Key referencing the 'users' collection
+    "ref": "users",
+    "required": true
+  },
+  "url": {
+    "type": "String", // The URL where the image is hosted/stored
+    "required": true
+  },
+  "filename": {
+    "type": "String", // Original filename, for user reference
+    "required": true
+  },
+  "createdAt": {
+    "type": "Date",
+    "default": "Date.now"
+  }
+}

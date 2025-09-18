@@ -1,0 +1,43 @@
+# Python artifacts
+__pycache__/
+*.pyc
+
+# Local virtualenv
+venv/
+.venv/
+
+# Docker env files
+docker/.env
+infra/docker/.env
+
+# Don’t send Compose override files or docs
+docker/compose.dev.yml
+docs/
+README.md
+CONTRIBUTING.md
+SECURITY.md
+LICENSE
+
+
+
+
+# Ignore Python cruft
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Ignore local dev overrides
+docker/.env
+docker/compose.dev.yml
+
+
+!Pipfile
+!Pipfile.lock
+!backend/
+!infra/Dockerfile
+!docker/docker-compose.yml
+
+
+
+

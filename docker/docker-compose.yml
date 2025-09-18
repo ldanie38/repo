@@ -1,0 +1,35 @@
+# docker/docker-compose.yml
+
+services:
+  web:
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+    command:
+      python manage.py runserver 0.0.0.0:${PORT}
+    volumes:
+      - ..:/app
+    env_file:
+      - ../.env
+    ports:
+      - "${PORT}:${PORT}"
+    depends_on:
+      - db
+
+  db:
+    image: postgres:14
+    env_file:
+      - ../.env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
+volumes:
+  pgdata:
+
+

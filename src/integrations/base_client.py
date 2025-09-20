@@ -1,0 +1,30 @@
+
+# shared request logic
+# is like a control for talking to any web API
+
+import os
+import requests ##sends HTTP requests
+from dotenv import load_dotenv
+
+load_dotenv()
+
+class BaseAPIClient:
+    def __init__(self, base_url, api_key=None):
+        self.base_url = base_url
+        self.api_key = api_key
+
+    def get(self, endpoint, params=None):
+        return requests.get(f"{self.base_url}{endpoint}", params=params)
+
+    def post(self, endpoint, data=None, json=None):
+        return requests.post(f"{self.base_url}{endpoint}", data=data, json=json)
+
+    def put(self, endpoint, data=None, json=None):
+        return requests.put(f"{self.base_url}{endpoint}", data=data, json=json)
+
+    def delete(self, endpoint):
+        return requests.delete(f"{self.base_url}{endpoint}")
+    
+    def patch(self, endpoint, data=None, json=None, headers=None):
+        return requests.patch(f"{self.base_url}{endpoint}", data=data, json=json, headers=headers) ## just like put but calls requests.patch.
+

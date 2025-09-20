@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="https://use.typekit.net/yfd2poq.css">
+  <title>FACRM Popup</title>
+<style>
+  body {
+   
+    padding: 15px;
+    width: 300px;
+    background-color: #F5F6F7;
+    color: #1C1C1C;
+  }
+  
+  h2 {
+    color: #495057;
+    margin-bottom: 10px;
+    font-family: "indivisible", sans-serif;
+    font-weight: 500;
+    font-style: normal;
+  }
+  
+  h3, a {
+    color: #4a8fe7;
+    margin-bottom: 8px;
+    font-size: 1rem;
+    font-family: "indivisible", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+  }
+  
+  section {
+    margin-bottom: 18px;
+    padding: 10px;
+    background-color: #FFFFFF;
+    border: 1px solid #E0E0E0;
+    border-radius: 8px;
+  }
+  
+  input {
+    display: block;
+    margin: 6px 0;
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #D0D0D0;
+    border-radius: 6px;
+    background-color: #FFFFFF;
+    color: #1C1C1C;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  }
+
+
+  
+  input:focus {
+    border-color: #2979FF;
+    box-shadow: 0 0 0 2px rgba(41, 121, 255, 0.15);
+
+  }
+  
+  button {
+    margin-top: 6px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    background-color: #4a8fe7;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease, transform 0.15s ease;
+    font-family: "indivisible", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+  }
+  
+  button:hover {
+    background-color: #1565C0;
+    transform: translateY(-1px);
+  }
+  
+  pre {
+    background: #F0F0F0;
+    padding: 6px;
+    white-space: pre-wrap;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: #333;
+  }
+  
+  .status {
+    margin-top: 5px;
+    font-weight: bold;
+  }
+  
+  .success {
+    color: #2E7D32; /* subtle green for success */
+  }
+  
+  .error {
+    color: #C62828; /* subtle red for errors */
+  }
+  
+</style>
+  
+</head>
+<body>
+  <h2>Genius Messenger CRM</h2>
+
+  <!-- Login Section -->
+  <section>
+    <h3>Login</h3>
+    <button id="loginBtn">Login</button>
+    <button id="loginBtn">Forgot Password</button>
+    <input id="username" type="text" placeholder="Username" />
+    <input id="password" type="password" placeholder="Password" />
+    <div id="status" class="status"></div>
+  </section>
+
+
+  <section>
+    <h3>Ping Background</h3>
+    <button id="pingBtn">Send Ping</button>
+    <pre id="output"></pre>
+  </section>
+
+  <section>
+    <a href="https://example.com/support" target="_blank">Support</a> | 
+    <a href="https://example.com/training" target="_blank">Training Videos</a>
+
+  </section>
+
+  
+
+
+  <script src="popup.js"></script>
+</body>
+</html>

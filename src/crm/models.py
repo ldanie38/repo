@@ -69,8 +69,17 @@ class Lead(models.Model):
         return f"{self.name} <{self.email}>"
 
 
+from django.core.validators import RegexValidator
+
 class Label(models.Model):
     name = models.CharField(max_length=50, unique=True)
+    color = models.CharField(
+        max_length=7,
+        default="#ffffff",
+        validators=[RegexValidator(regex=r'^#[0-9A-Fa-f]{6}$',
+                                   message="Enter a valid hex color, e.g. #1A2B3C")]
+    )
 
     def __str__(self):
-        return self.name
+        return f"{self.name} ({self.color})"
+

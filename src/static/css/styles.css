@@ -23,16 +23,30 @@
   html, body {
     height: 100%;
   }
+
+  html {
+    background: #c0c0c0; /* simulates browser chrome behind popup */
+  }
+  
   
   body {
     margin: 0;
-    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
     color: var(--text);
     background: radial-gradient(1200px 800px at 10% -10%, #eef4ff 0%, #f9fafb 35%, #f9fafb 100%), var(--bg);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-family: "indivisible", sans-serif;
+    font-weight: 500;
+    font-style: normal;
+    background: #e9ebf0;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
   }
-  
+
   /* Smooth, subtle transitions */
   :where(a, button, input, .feature, .label, .card) {
     transition: background-color .2s ease, border-color .2s ease, box-shadow .2s ease, transform .12s ease, color .2s ease;
@@ -52,10 +66,13 @@
   header h1 {
     margin: 0;
     text-align: center;
-    font-weight: 800;
     letter-spacing: .3px;
     font-size: clamp(1.25rem, 2.5vw, 1.75rem);
     text-shadow: 0 1px 0 rgba(0,0,0,.08);
+    font-family: "indivisible", sans-serif;
+    font-weight:800;
+    font-style:normal ;
+    
   }
   
   /* Hero */
@@ -76,9 +93,10 @@
     color: var(--primary);
     border: 1px solid rgba(74, 143, 231, .25);
     border-radius: 999px;
-    font-weight: 700;
+    font-weight: 900;
     letter-spacing: .2px;
     box-shadow: 0 6px 18px rgba(74, 143, 231, .12);
+
   }
   .cta-buttons a:hover {
     transform: translateY(-1px);
@@ -101,12 +119,18 @@
   .container_right {
     flex: 0 1 clamp(260px, 28%, 340px); /* responsive sidebar width */
     order: 2;
+    font-family: "indivisible", sans-serif;
+    font-weight: 500;
+    font-style: normal;
   }
   
   .container_left {
     flex: 1 1 0%;
     order: 1;
     min-width: 0; /* prevents overflow in flex items */
+    font-family: "indivisible", sans-serif;
+    font-weight: 500;
+    font-style: normal;
   }
   
   /* Stack on small screens */
@@ -174,6 +198,9 @@
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     outline: none;
+    font-family: "indivisible", sans-serif;
+    font-weight: 350;
+    font-style: normal;
   }
   #newLabelInput:focus {
     border-color: rgba(74,143,231,.55);
@@ -239,12 +266,15 @@
     border-radius: 8px;
     padding: 4px 6px;
     cursor: pointer;
+    font-family: "indivisible", sans-serif;
+    font-weight: 500;
+    font-style: normal;
   }
   .label-card button:hover {
     background: rgba(255,255,255,.3);
   }
   
-  /* ===== Fancy toggle switch ===== */
+  /* =====  toggle switch ===== */
   .switch {
     --h: 28px;
     --w: 52px;
@@ -252,6 +282,7 @@
     display: inline-block;
     width: var(--w);
     height: var(--h);
+    margin-top: 0.625rem;
   }
   .switch input {
     opacity: 0;
@@ -298,9 +329,100 @@
   a:hover {
     text-decoration: underline;
   }
+
+
+  .brush-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    margin: 0 0.5rem;
+    cursor: pointer;
+    vertical-align: middle;
+  }
+  .brush-icon svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
   
-  /* ===== Footer ===== */
-/* ===== Footer ===== */
+#labelList {
+    margin-top: 18px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    list-style: none;
+    padding: 0;
+  }
+  
+  #labelList li {
+    font-size: 1.3rem;           
+    font-weight: 800;            
+    padding: 14px 22px;          
+    border-radius: 12px;         
+    color: #fff;                 /* JS will override for contrast */
+    box-shadow: 0 5px 14px rgba(0,0,0,0.12);
+    cursor: default;
+    width: 15rem;  
+    height: 6rem;          
+    text-align: center;
+    letter-spacing: 0.3px;
+    text-transform: capitalize;
+  }
+
+ /* ===== page popup===== */
+
+
+/* Page backdrop */
+
+  
+  /* Popup frame — wider */
+  .popup-container {
+    position: relative;
+    top: 40px; /* drop it down from the top */
+    width: 1100px;       
+    max-width: 95vw;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow:
+      0 4px 12px rgba(0, 0, 0, 0.15),
+      0 0 0 1px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;    
+    min-height: 700px;
+  }
+  
+  /* Internal spacing */
+  .popup-container header,
+  .popup-container .hero,
+  .popup-container .two-column,
+  .popup-container footer {
+    padding: 20px;
+  }
+  
+  /* Footer styling */
+  .popup-container footer {
+    border-top: 1px solid #e5e7eb;
+    margin-top: auto;
+    background: #fafafa;
+  }
+  
+  /* Scroll if content taller than popup */
+  .popup-container {
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  
+  
+
+  
+  
+  
+  
+
+ /* ===== footer ===== */
 footer {
     background: #f1f5f9;
     border-top: 1px solid var(--border);

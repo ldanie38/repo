@@ -33,8 +33,15 @@
     font-family: "indivisible", sans-serif;
     font-weight: 500;
     font-style: normal;
+    background: #e9ebf0;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
   }
-  
+
   /* Smooth, subtle transitions */
   :where(a, button, input, .feature, .label, .card) {
     transition: background-color .2s ease, border-color .2s ease, box-shadow .2s ease, transform .12s ease, color .2s ease;
@@ -58,8 +65,9 @@
     font-size: clamp(1.25rem, 2.5vw, 1.75rem);
     text-shadow: 0 1px 0 rgba(0,0,0,.08);
     font-family: "indivisible", sans-serif;
-    font-weight: 600;
-    font-style: normal;
+    font-weight:800;
+    font-style:normal ;
+    
   }
   
   /* Hero */
@@ -356,12 +364,60 @@
     letter-spacing: 0.3px;
     text-transform: capitalize;
   }
+
+ /* ===== page popup===== */
+
+
+/* Page backdrop */
+
+  
+  /* Popup frame — wider */
+  .popup-container {
+    position: relative;
+    top: 40px; /* drop it down from the top */
+    width: 1100px;       
+    max-width: 95vw;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow:
+      0 4px 12px rgba(0, 0, 0, 0.15),
+      0 0 0 1px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;    
+    min-height: 700px;
+  }
+  
+  /* Internal spacing */
+  .popup-container header,
+  .popup-container .hero,
+  .popup-container .two-column,
+  .popup-container footer {
+    padding: 20px;
+  }
+  
+  /* Footer styling */
+  .popup-container footer {
+    border-top: 1px solid #e5e7eb;
+    margin-top: auto;
+    background: #fafafa;
+  }
+  
+  /* Scroll if content taller than popup */
+  .popup-container {
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  
+  
+
   
   
   
   
 
-/* ===== Footer ===== */
+ /* ===== footer ===== */
 footer {
     background: #f1f5f9;
     border-top: 1px solid var(--border);

@@ -71,7 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const input = document.getElementById("newLabelInput");
   const labelList = document.getElementById("labelList"); // UL container in HTML
 
-  if (btn && input && colorInput) {
+  if (btn && input && colorInput && labelList) {
     btn.addEventListener("click", async () => {
       const labelName = input.value.trim();
       const labelColor = colorInput.value;
@@ -128,29 +128,113 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   //
-  // Helper: Add label to UI
+  // Helper: Add label to UI with Edit/Delete
   //
   function addLabelToUI(name, color) {
     const li = document.createElement("li");
-    li.textContent =(name);              // ✅ show label name, not color code
-    li.style.backgroundColor = color;   // ✅ use color for background
+    li.style.backgroundColor = color;
     li.style.color = getContrastColor(color);
     li.style.padding = "14px 22px";
     li.style.borderRadius = "12px";
     li.style.fontWeight = "bold";
+    li.style.display = "flex";
+    li.style.alignItems = "center";
+    li.style.justifyContent = "space-between";
+    li.style.gap = "8px";
+
+    const span = document.createElement("span");
+    span.textContent = name;
+    span.style.flex = "1";
+    span.style.textAlign = "center";
+
+    // Edit button
+    const editBtn = document.createElement("button");
+    editBtn.textContent = "✏️";
+    editBtn.style.border = "none";
+    editBtn.style.background = "rgba(255,255,255,0.2)";
+    editBtn.style.color = "#fff";
+    editBtn.style.borderRadius = "6px";
+    editBtn.style.cursor = "pointer";
+    editBtn.title = "Edit label";
+
+    editBtn.addEventListener("click", () => {
+      const newName = prompt("Edit label name:", name);
+      if (!newName || !newName.trim()) return;
+
+      // Create a hidden color input to pick new color
+      const tempColorInput = document.createElement("input");
+      tempColorInput.type = "color";
+      tempColorInput.value = color;
+      tempColorInput.style.position = "fixed";
+      tempColorInput.style.left = "-9999px";
+      document.body.appendChild(tempColorInput);
+
+      tempColorInput.addEventListener("input", () => {
+        const newColor = tempColorInput.value;
+        // Update UI
+        span.textContent = newName.trim();
+        li.style.backgroundColor = newColor;
+        li.style.color = getContrastColor(newColor);
+
+        // Optional: send update to backend
+        fetch(`/api/labels/update/`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            oldName: name,
+            newName: newName.trim(),
+            color: newColor
+          })
+        }).catch(console.error);
+
+        // Update local vars
+        name = newName.trim();
+        color = newColor;
+
+        document.body.removeChild(tempColorInput);
+      });
+
+      // Trigger the color picker
+      tempColorInput.click();
+    });
+
+    // Delete button
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "🗑️";
+    deleteBtn.style.border = "none";
+    deleteBtn.style.background = "rgba(255,255,255,0.2)";
+    deleteBtn.style.color = "#fff";
+    deleteBtn.style.borderRadius = "6px";
+    deleteBtn.style.cursor = "pointer";
+    deleteBtn.title = "Delete label";
+
+    deleteBtn.addEventListener("click", () => {
+      if (confirm(`Delete label "${name}"?`)) {
+        li.remove();
+        fetch(`/api/labels/delete/`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name })
+        }).catch(console.error);
+      }
+    });
+
+    li.appendChild(span);
+    li.appendChild(editBtn);
+    li.appendChild(deleteBtn);
     labelList.appendChild(li);
   }
-  
 
   //
-  // Helper: Choose black or white text for contrast
+  // Helper: Get contrast color (black or white) for readability
   //
   function getContrastColor(hex) {
-    hex = hex.replace("#", "");
-    const r = parseInt(hex.substr(0, 2), 16);
-    const g = parseInt(hex.substr(2, 2), 16);
-    const b = parseInt(hex.substr(4, 2), 16);
-    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-    return luminance > 0.5 ? "#000" : "#fff";
+    const r = parseInt(hex.substr(1, 2), 16);
+    const g = parseInt(hex.substr(3, 2), 16);
+    const b = parseInt(hex.substr(5, 2), 16);
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+    return brightness > 128 ? "#000" : "#fff";
   }
 });
+
+  

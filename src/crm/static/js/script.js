@@ -91,7 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = await res.json();
 
         if (res.ok) {
-          addLabelToUI(data.name, data.color);
+          addLabelToUI(data.name || labelName, data.color || labelColor);
 
           // Reset form
           input.value = "";
@@ -161,6 +161,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const newName = prompt("Edit label name:", name);
       if (!newName || !newName.trim()) return;
 
+      // Update name immediately so it's not blocked by color selection
+      const committedName = newName.trim();
+      span.textContent = committedName;
+
       // Create a hidden color input to pick new color
       const tempColorInput = document.createElement("input");
       tempColorInput.type = "color";
@@ -169,32 +173,60 @@ document.addEventListener("DOMContentLoaded", () => {
       tempColorInput.style.left = "-9999px";
       document.body.appendChild(tempColorInput);
 
-      tempColorInput.addEventListener("input", () => {
-        const newColor = tempColorInput.value;
-        // Update UI
-        span.textContent = newName.trim();
-        li.style.backgroundColor = newColor;
-        li.style.color = getContrastColor(newColor);
+      let committed = false;
 
-        // Optional: send update to backend
-        fetch(`/api/labels/update/`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            oldName: name,
-            newName: newName.trim(),
-            color: newColor
-          })
-        }).catch(console.error);
+      // If a new color is chosen
+      tempColorInput.addEventListener(
+        "change",
+        () => {
+          const newColor = tempColorInput.value;
+          li.style.backgroundColor = newColor;
+          li.style.color = getContrastColor(newColor);
 
-        // Update local vars
-        name = newName.trim();
-        color = newColor;
+          // Persist both name and color
+          fetch(`/api/labels/update/`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              oldName: name,
+              newName: committedName,
+              color: newColor,
+            }),
+          }).catch(console.error);
 
-        document.body.removeChild(tempColorInput);
-      });
+          // Update local vars for next edit
+          name = committedName;
+          color = newColor;
+
+          committed = true;
+          document.body.removeChild(tempColorInput);
+        },
+        { once: true }
+      );
+
+      // Fallback: user closes picker without changing color -> still persist name change
+      tempColorInput.addEventListener(
+        "blur",
+        () => {
+          if (committed) return;
+          fetch(`/api/labels/update/`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              oldName: name,
+              newName: committedName,
+              color: color, // unchanged
+            }),
+          }).catch(console.error);
+
+          name = committedName; // update local name
+          document.body.removeChild(tempColorInput);
+        },
+        { once: true }
+      );
 
       // Trigger the color picker
+      tempColorInput.focus();
       tempColorInput.click();
     });
 
@@ -214,7 +246,7 @@ document.addEventListener("DOMContentLoaded", () => {
         fetch(`/api/labels/delete/`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name })
+          body: JSON.stringify({ name }),
         }).catch(console.error);
       }
     });
@@ -236,5 +268,3 @@ document.addEventListener("DOMContentLoaded", () => {
     return brightness > 128 ? "#000" : "#fff";
   }
 });
-
-  

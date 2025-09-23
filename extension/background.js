@@ -7,7 +7,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'ping') {
     console.log('Background received ping:', request.payload);
     sendResponse({ reply: 'Pong from background!' });
-    return;
+    return; // synchronous response
   }
 
   // SAVE TOKEN HANDLER (from popup after login)
@@ -16,7 +16,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       console.log('[CRM] Token saved to storage.');
       sendResponse({ success: true });
     });
-    return true;
+    return true; // keep message channel open for async sendResponse
   }
 
   // TEST API HANDLER
@@ -26,7 +26,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     fetch('http://localhost:8000/api/leads/', {
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
         'Authorization': `Bearer ${request.token}`
       }
     })

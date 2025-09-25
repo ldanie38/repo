@@ -1,4 +1,11 @@
+import { getLabels, setLabels } from "./storage.js";
+
+
+
+
 // Helper to get element by ID
+
+
 const byId = id => document.getElementById(id);
 
 const baseURL = "http://localhost:8000"; // change if needed
@@ -93,6 +100,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (loginSection) loginSection.style.display = 'none';
         if (labelsSection) labelsSection.style.display = 'block';
 
+        document.body.classList.add("labels-mode");
+
         if (typeof loadLabels === 'function') loadLabels(token);
       } catch (err) {
         console.error('Login error', err);
@@ -173,51 +182,76 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  //
-  // Create Label (name + color) and render instantly (uses JWT)
-  //
-  const btn = byId("createLabelBtn");
-  const input = byId("newLabelInput");
-  const labelList = byId("labelList"); // UL container in popup.html
+//
+// Create Label (name + color) and render instantly (hybrid: local + backend)
+// Prevents duplicates both locally and on the server
+//
 
-  if (btn && input && colorInput && labelList) {
-    btn.addEventListener("click", async () => {
-      const labelName = input.value.trim();
-      const labelColor = colorInput.value;
-      if (!labelName) {
-        alert("Please enter a label name");
-        return;
+const btn = byId("createLabelBtn");
+const input = byId("newLabelInput");
+const labelList = byId("labelList"); // UL container in popup.html
+
+if (btn && input && colorInput && labelList) {
+  btn.addEventListener("click", async () => {
+    const labelName = input.value.trim();
+    const labelColor = colorInput.value;
+
+    if (!labelName) {
+      alert("Please enter a label name");
+      return;
+    }
+
+    // 1. Check locally for duplicates
+    const labels = await new Promise(resolve => getLabels(resolve));
+    const exists = labels.some(
+      l => l.name.toLowerCase() === labelName.toLowerCase()
+    );
+    if (exists) {
+      alert("That label already exists.");
+      return;
+    }
+
+    // 2. Save locally (fast, offline)
+    const updated = [...labels, { name: labelName, color: labelColor }];
+    setLabels(updated);
+
+    // 3. Push to backend (sync across devices)
+    const jwtObj = await chrome.storage.local.get(["jwt"]);
+    const jwt = jwtObj && jwtObj.jwt;
+    if (!jwt) {
+      alert("Please log in first.");
+      return;
+    }
+
+    try {
+      const res = await fetch(api.labelsCreate, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${jwt}`,
+        },
+        body: JSON.stringify({ name: labelName, color: labelColor }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        // Update UI with server-confirmed values
+        addLabelToUI(data.name || labelName, data.color || labelColor);
+        input.value = "";
+        colorInput.value = "#ff0000";
+        if (brushIcon) brushIcon.style.color = "#ff0000";
+      } else {
+        alert(`Error: ${data.error || JSON.stringify(data)}`);
       }
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong");
+    }
+  });
+}
 
-      const jwtObj = await chrome.storage.local.get(['jwt']);
-      const jwt = jwtObj && jwtObj.jwt;
-      if (!jwt) return alert("Please log in first.");
-
-      try {
-        const res = await fetch(api.labelsCreate, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${jwt}`
-          },
-          body: JSON.stringify({ name: labelName, color: labelColor }),
-        });
-
-        const data = await res.json().catch(() => ({}));
-        if (res.ok) {
-          addLabelToUI(data.name || labelName, data.color || labelColor);
-          input.value = "";
-          colorInput.value = "#ff0000";
-          if (brushIcon) brushIcon.style.color = "#ff0000";
-        } else {
-          alert(`Error: ${data.error || JSON.stringify(data)}`);
-        }
-      } catch (err) {
-        console.error(err);
-        alert("Something went wrong");
-      }
-    });
-  }
+  
+  
 
   //
   // Load existing labels on popup open (uses JWT)
@@ -253,150 +287,108 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  //
-  // Helper: Add label to UI with Edit/Delete (uses JWT for server ops)
-  //
-  function addLabelToUI(name, color) {
-    const li = document.createElement("li");
-    li.style.backgroundColor = color || '#777';
-    li.style.color = getContrastColor(color || '#777');
-    li.style.padding = "10px 12px";
-    li.style.borderRadius = "8px";
-    li.style.fontWeight = "600";
-    li.style.display = "flex";
-    li.style.alignItems = "center";
-    li.style.justifyContent = "space-between";
-    li.style.gap = "8px";
 
-    const span = document.createElement("span");
-    span.textContent = name;
-    span.style.flex = "1";
-    span.style.textAlign = "center";
+//
+// Helper: Add label to UI with Edit/Delete (uses JWT for server ops)
+//
+function addLabelToUI(name, color, id) {
+  const li = document.createElement("li");
+  li.style.backgroundColor = color || "#777";
+  li.style.color = getContrastColor(color || "#777");
+  li.style.padding = "10px 12px";
+  li.style.borderRadius = "8px";
+  li.style.fontWeight = "600";
+  li.style.display = "flex";
+  li.style.alignItems = "center";
+  li.style.justifyContent = "space-between";
+  li.style.gap = "8px";
 
-    // Edit button
-    const editBtn = document.createElement("button");
-    editBtn.textContent = "✏️";
-    editBtn.style.border = "none";
-    editBtn.style.background = "rgba(255,255,255,0.15)";
-    editBtn.style.color = "#fff";
-    editBtn.style.borderRadius = "6px";
-    editBtn.style.cursor = "pointer";
-    editBtn.title = "Edit label";
+  // Label text
+  const span = document.createElement("span");
+  span.textContent = name;
+  span.style.flex = "1";
+  span.style.textAlign = "center";
 
-    editBtn.addEventListener("click", async () => {
-      const newName = prompt("Edit label name:", name);
-      if (!newName || !newName.trim()) return;
-      const committedName = newName.trim();
-      span.textContent = committedName;
+  // Edit button
+  const editBtn = document.createElement("button");
+  editBtn.textContent = "✏️";
+  editBtn.style.border = "none";
+  editBtn.style.background = "transparent";
+  editBtn.style.cursor = "pointer";
+  editBtn.addEventListener("click", async () => {
+    const newName = prompt("Edit label name:", name);
+    if (!newName) return;
 
-      const tempColorInput = document.createElement("input");
-      tempColorInput.type = "color";
-      tempColorInput.value = color || '#777';
-      tempColorInput.style.position = "fixed";
-      tempColorInput.style.left = "-9999px";
-      document.body.appendChild(tempColorInput);
+    const jwtObj = await chrome.storage.local.get(["jwt"]);
+    const jwt = jwtObj && jwtObj.jwt;
+    if (!jwt) {
+      alert("Please log in first.");
+      return;
+    }
 
-      let committed = false;
-
-      tempColorInput.addEventListener("change", async () => {
-        const newColor = tempColorInput.value;
-        li.style.backgroundColor = newColor;
-        li.style.color = getContrastColor(newColor);
-
-        try {
-          const jwtObj = await chrome.storage.local.get(['jwt']);
-          const jwt = jwtObj && jwtObj.jwt;
-          await fetch(api.labelsUpdate, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${jwt}`
-            },
-            body: JSON.stringify({
-              oldName: name,
-              newName: committedName,
-              color: newColor,
-            }),
-          });
-        } catch (e) {
-          console.error(e);
-        }
-
-        name = committedName;
-        color = newColor;
-        committed = true;
-        document.body.removeChild(tempColorInput);
-      }, { once: true });
-
-      tempColorInput.addEventListener("blur", async () => {
-        if (committed) return;
-        try {
-          const jwtObj = await chrome.storage.local.get(['jwt']);
-          const jwt = jwtObj && jwtObj.jwt;
-          await fetch(api.labelsUpdate, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${jwt}`
-            },
-            body: JSON.stringify({
-              oldName: name,
-              newName: committedName,
-              color: color, // unchanged
-            }),
-          });
-        } catch (e) {
-          console.error(e);
-        }
-        name = committedName;
-        document.body.removeChild(tempColorInput);
-      }, { once: true });
-
-      tempColorInput.focus();
-      tempColorInput.click();
-    });
-
-    // Delete button
-    const deleteBtn = document.createElement("button");
-    deleteBtn.textContent = "🗑️";
-    deleteBtn.style.border = "none";
-    deleteBtn.style.background = "rgba(255,255,255,0.15)";
-    deleteBtn.style.color = "#fff";
-    deleteBtn.style.borderRadius = "6px";
-    deleteBtn.style.cursor = "pointer";
-    deleteBtn.title = "Delete label";
-
-    deleteBtn.addEventListener("click", async () => {
-      if (!confirm(`Delete label "${name}"?`)) return;
-      li.remove();
-      try {
-        const jwtObj = await chrome.storage.local.get(['jwt']);
-        const jwt = jwtObj && jwtObj.jwt;
-        if (!jwt) {
-          alert("Not logged in — cannot delete label.");
-          return;
-        }
-        const res = await fetch(api.labelsDelete, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${jwt}`
-          },
-          body: JSON.stringify({ name })
-        });
-        if (!res.ok) {
-          console.error("Delete failed:", await res.text().catch(()=>'<no body>'));
-        }
-      } catch (err) {
-        console.error('Error deleting label:', err);
+    try {
+      const res = await fetch(`${api.labelsUpdate}${id}/`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${jwt}`,
+        },
+        body: JSON.stringify({ name: newName, color }),
+      });
+      if (res.ok) {
+        span.textContent = newName;
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert(`Update failed: ${data.error || res.status}`);
       }
-    });
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong updating label");
+    }
+  });
 
-    li.appendChild(span);
-    li.appendChild(editBtn);
-    li.appendChild(deleteBtn);
-    labelList.appendChild(li);
-  } // end addLabelToUI
+  // Delete button
+  const deleteBtn = document.createElement("button");
+  deleteBtn.textContent = "🗑️";
+  deleteBtn.style.border = "none";
+  deleteBtn.style.background = "transparent";
+  deleteBtn.style.cursor = "pointer";
+  deleteBtn.addEventListener("click", async () => {
+    if (!confirm(`Delete label "${name}"?`)) return;
+
+    const jwtObj = await chrome.storage.local.get(["jwt"]);
+    const jwt = jwtObj && jwtObj.jwt;
+    if (!jwt) {
+      alert("Please log in first.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${api.labelsDelete}${id}/`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${jwt}`,
+        },
+      });
+      if (res.ok) {
+        li.remove();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert(`Delete failed: ${data.error || res.status}`);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong deleting label");
+    }
+  });
+
+  // Assemble
+  li.appendChild(span);
+  li.appendChild(editBtn);
+  li.appendChild(deleteBtn);
+  labelList.appendChild(li);
+}
+
 
   // Contrast helper
   function getContrastColor(hex) {
@@ -408,4 +400,33 @@ document.addEventListener("DOMContentLoaded", () => {
     return brightness > 128 ? "#000" : "#fff";
   }
 
+  // open labels.html
+  const openFullPage = document.getElementById("openFullPage");
+  if (openFullPage) {
+    openFullPage.addEventListener("click", (e) => {
+      e.preventDefault();
+      chrome.tabs.create({
+        url: chrome.runtime.getURL("labels.html") // or another HTML file you design
+      });
+    });
+  }
+
+
+  
+  
+  
+
 }); // end DOMContentLoaded
+
+// color picker
+document.addEventListener("DOMContentLoaded", () => {
+  const brushIcon = document.getElementById("brushIcon");
+  const colorInput = document.getElementById("newLabelColorInput");
+
+  if (brushIcon && colorInput) {
+    brushIcon.addEventListener("click", () => {
+      colorInput.click();
+    });
+  }
+});
+

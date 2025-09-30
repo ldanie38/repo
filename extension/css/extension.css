@@ -1,0 +1,237 @@
+/* === Base Layout === */
+body {
+    padding: 15px;
+    width: 300px;
+    background-color: #F5F6F7;
+    color: #1C1C1C;
+  }
+  
+  /* === Headings & Links === */
+  h2 {
+    color: #495057;
+    margin-bottom: 10px;
+    font-family: "indivisible", sans-serif;
+    font-weight: 500;
+  }
+  
+  h3,
+  a {
+    color: #4a8fe7;
+    margin-bottom: 8px;
+    font-size: 1rem;
+    font-family: "indivisible", sans-serif;
+    font-weight: 300;
+  }
+  
+  /* === Sections === */
+  section {
+    margin-bottom: 18px;
+    padding: 10px;
+    background-color: #FFFFFF;
+    border: 1px solid #E0E0E0;
+    border-radius: 8px;
+  }
+  
+  /* === Form Elements === */
+  input {
+    display: block;
+    margin: 6px 0;
+    width: 90%;
+    padding: 8px;
+    border: 1px solid #D0D0D0;
+    border-radius: 6px;
+    background-color: #FFFFFF;
+    color: #1C1C1C;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  input:focus {
+    border-color: #2979FF;
+    box-shadow: 0 0 0 2px rgba(41, 121, 255, 0.15);
+  }
+
+  .label input{
+    width: 50%;
+  }
+
+
+  
+  button {
+    margin-top: 6px;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    background-color: #4a8fe7;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease, transform 0.15s ease;
+    font-family: "indivisible", sans-serif;
+    font-weight: 300;
+  }
+  
+  button:hover {
+    background-color: #1565C0;
+    transform: translateY(-1px);
+  }
+  
+  /* === Text Blocks === */
+  pre {
+    background: #F0F0F0;
+    padding: 6px;
+    white-space: pre-wrap;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: #333;
+  }
+  
+  /* === Status Messages === */
+  .status {
+    margin-top: 5px;
+    font-weight: bold;
+  }
+  
+  .success {
+    color: #2E7D32;
+  }
+  
+  .error {
+    color: #C62828;
+  }
+  
+  /* === Layout Helpers === */
+  
+  .container_left,
+  .container_right {
+    flex: 1;
+  }
+
+  .container_left{
+    display: flex;
+    flex-direction: column;
+
+   
+    
+  }
+  .two-column {
+    display: flex;
+    align-items: flex-start; 
+    gap: 12px;
+  }
+  
+
+ .container_right{
+    display: flex;
+    flex-direction: column;
+    
+ }
+  /* === Features & Icons === */
+  .feature {
+    margin-bottom: 10px;
+  }
+  
+  .brush-icon {
+    cursor: pointer;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+  
+  /* === Labels List === */
+  ul#labelList {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0 0 0;
+    display: grid;
+    gap: 8px;
+  }
+  
+
+
+/* CSS FOR LABALS PAGE extension */
+ body {
+    padding: 15px;
+    background-color: #F5F6F7;
+    color: #1C1C1C;
+    margin: 0;
+    width: 300px;   /* default for login */
+    height: auto;
+  }
+  
+
+  
+  #loginSection {
+    width: 300px; /* keep login compact */
+  }
+  
+  #labelsSection {
+    width: 600px;   /* make labels page wider */
+    height: 800px;  /* optional: make it taller */
+  }
+
+  .label {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap:5px;
+    align-items: center;
+  }
+  
+  body.labels-mode {
+    width: 600px;
+    height: 800px;
+  }
+
+/* Full page mode (when opened in a tab) */
+body.fullpage {
+    width: auto;
+    height: auto;
+    max-width: none;
+    padding: 20px;
+  }
+
+  .switch {
+    --h: 28px;
+    --w: 52px;
+    position: relative;
+    display: inline-block;
+    width: var(--w);
+    height: var(--h);
+  }
+  
+  .switch input { opacity: 0; width: 0; height: 0; }
+  
+  .switch .slider {
+    position: absolute;
+    inset: 0;
+    cursor: pointer;
+    background: #e9eef7;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    box-shadow: inset 0 2px 6px rgba(0,0,0,.06);
+    transition: .2s;
+  }
+  
+  .switch .slider:before {
+    content: "";
+    position: absolute;
+    height: calc(var(--h) - 8px);
+    width: calc(var(--h) - 8px);
+    left: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 4px 10px rgba(0,0,0,.15);
+    transition: .2s;
+  }
+  
+  .switch input:checked + .slider {
+    background: rgba(74,143,231,.25);
+    border-color: rgba(74,143,231,.5);
+  }
+  
+  .switch input:checked + .slider:before {
+    transform: translate(calc(var(--w) - var(--h)), -50%);
+  }
+  
+  

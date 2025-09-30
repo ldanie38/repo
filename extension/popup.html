@@ -4,137 +4,88 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="stylesheet" href="https://use.typekit.net/yfd2poq.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" type="text/css" href="css/extension.css">
+  <link rel="stylesheet" href="vendor/fontawesome.css">
+  <script src="vendor/fontawesome-kit.js"></script>
+
+
   <title>FACRM Popup</title>
-<style>
-  body {
-   
-    padding: 15px;
-    width: 300px;
-    background-color: #F5F6F7;
-    color: #1C1C1C;
-  }
-  
-  h2 {
-    color: #495057;
-    margin-bottom: 10px;
-    font-family: "indivisible", sans-serif;
-    font-weight: 500;
-    font-style: normal;
-  }
-  
-  h3, a {
-    color: #4a8fe7;
-    margin-bottom: 8px;
-    font-size: 1rem;
-    font-family: "indivisible", sans-serif;
-    font-weight: 300;
-    font-style: normal;
-  }
-  
-  section {
-    margin-bottom: 18px;
-    padding: 10px;
-    background-color: #FFFFFF;
-    border: 1px solid #E0E0E0;
-    border-radius: 8px;
-  }
-  
-  input {
-    display: block;
-    margin: 6px 0;
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #D0D0D0;
-    border-radius: 6px;
-    background-color: #FFFFFF;
-    color: #1C1C1C;
-    outline: none;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-
-  }
-
-
-  
-  input:focus {
-    border-color: #2979FF;
-    box-shadow: 0 0 0 2px rgba(41, 121, 255, 0.15);
-
-  }
-  
-  button {
-    margin-top: 6px;
-    padding: 8px 12px;
-    border: none;
-    border-radius: 6px;
-    background-color: #4a8fe7;
-    color: white;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.15s ease, transform 0.15s ease;
-    font-family: "indivisible", sans-serif;
-    font-weight: 300;
-    font-style: normal;
-  }
-  
-  button:hover {
-    background-color: #1565C0;
-    transform: translateY(-1px);
-  }
-  
-  pre {
-    background: #F0F0F0;
-    padding: 6px;
-    white-space: pre-wrap;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    color: #333;
-  }
-  
-  .status {
-    margin-top: 5px;
-    font-weight: bold;
-  }
-  
-  .success {
-    color: #2E7D32; /* subtle green for success */
-  }
-  
-  .error {
-    color: #C62828; /* subtle red for errors */
-  }
-  
-</style>
-  
 </head>
 <body>
   <h2>Genius Messenger CRM</h2>
 
-  <!-- Login Section -->
-  <section>
-    <h3>Login</h3>
-    <button id="loginBtn">Login</button>
-    <button id="loginBtn">Forgot Password</button>
-    <input id="username" type="text" placeholder="Username" />
-    <input id="password" type="password" placeholder="Password" />
-    <div id="status" class="status"></div>
-  </section>
+  <div id="loginSection">
+    <section>
+      <h3>Login</h3>
+      <input id="username" type="text" placeholder="Username" />
+      <input id="password" type="password" placeholder="Password" />
+      <div style="display:flex; gap:8px;">
+        <button id="loginBtn">Login</button>
+        <button id="forgotBtn">Forgot Password</button>
+      </div>
+      <div id="status" class="status"></div>
+    </section>
 
+    <section>
+      <h3>Ping Background</h3>
+      <button id="pingBtn">Send Ping</button>
+      <pre id="output"></pre>
+    </section>
 
-  <section>
-    <h3>Ping Background</h3>
-    <button id="pingBtn">Send Ping</button>
-    <pre id="output"></pre>
-  </section>
+    <section>
+      <a href="https://example.com/support" target="_blank" rel="noopener">Support</a> |
+      <a href="https://example.com/training" target="_blank" rel="noopener">Training Videos</a>
+    </section>
+  </div>
 
-  <section>
-    <a href="https://example.com/support" target="_blank">Support</a> | 
-    <a href="https://example.com/training" target="_blank">Training Videos</a>
+  <!-- Labels section (hidden by default; shown after login) -->
+  <div id="labelsSection" style="display:none;">
+    <div class="two-column">
+      <div class="container_right">
+        <div class="feature">
+          <h3>🏷 Show Labels in Facebook</h3>
+          <label class="switch">
+            <input type="checkbox" id="showLabelsToggle" />
+            <span class="slider"></span>
+          </label>
+          
+        </div>
 
-  </section>
+        <div class="feature">
+          <h3>✉️ Messages</h3>
+        </div>
 
   
+          <a href="#" id="openFullPage">🔗 Open Full Page</a>
+     
 
+        <div class="feature">
+          <p>
+            <a href="#" id="updatePasswordLink">Update Password</a> &nbsp;||&nbsp;
+            <a href="#" id="logoutLink">Log Out</a>
+          </p>
+        </div>
+      </div>
 
-  <script src="popup.js"></script>
+      <div class="container_left">
+        <h3>Create Label</h3>
+        <section class="label">
+          <input type="text" id="newLabelInput" placeholder="Enter label name" />
+          <input type="color" id="newLabelColorInput" value="#ff0000" style="display: none;" />
+          <i class="fa-solid fa-paint-brush brush-icon" id="brushIcon" style="color:#5390d9;" title="Choose label color"></i>
+          <button id="createLabelBtn">Add Label</button>
+        </section>
+
+        
+
+        <ul id="labelList"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="popup.js"></script>
+  <script type="module" src="labels.js"></script>
+  
 </body>
 </html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Genius Messenger CRM – Labels</title>
+
+  <!-- Full page styles -->
+  <link rel="stylesheet" href="css/labels.css">
+  <!-- Font Awesome for brush/trash icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<!-- For the color picker icon-->
+<script src="vendor/fontawesome-kit.js"></script>
+<link rel="stylesheet" href="vendor/fontawesome.css">
+</head>
+<body class="labels-mode">
+  
+  <!-- Page Title -->
+  
+
+    <h1>Genius Messenger CRM </h1>
+
+
+  <!-- Main Section -->
+  <div id="labelsSection">
+    <div class="two-column">
+      
+      <!-- Right Sidebar -->
+      <div class="container_right">
+        <div class="feature">
+          <h3>🏷 Show Labels in Facebook</h3>
+          <label class="switch">
+            <input type="checkbox" id="showLabelsToggle">
+            <span class="slider round"></span>
+          </label>
+        </div>
+
+        <div class="feature">
+          <h3>✉️ Messages</h3>
+          <p class="u-muted">Coming soon…</p>
+        </div>
+
+        <div class="feature">
+          <p>
+            <a href="#" id="updatePasswordLink">Update Password</a> &nbsp;||&nbsp;
+            <a href="#" id="logoutLink">Log Out</a>
+          </p>
+        </div>
+      </div>
+
+      <!-- Left Main Content -->
+      <div class="container_left">
+        <section class="label">
+            <h3>Create Label</h3>
+            <input type="text" id="newLabelInput" placeholder="Enter label name" />
+            <input type="color" id="newLabelColorInput" value="#ff0000" style="display:none;" />
+            <i class="fa-solid fa-paintbrush brush-icon" id="brushIcon" title="Choose label color"></i>
+            <button id="createLabelBtn">Add Label</button>
+          </section>
+          
+
+        <!-- Dynamic label list -->
+        <ul id="labelList"></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p class="u-muted">© 2025 Genius Messenger CRM</p>
+  </footer>
+
+  <!-- Extension logic -->
+  <script type="module" src="popup.js"></script>
+  <script type="module" src="labels.js"></script>
+  
+</body>
+</html>

@@ -3,17 +3,28 @@
   "name": "Facebook AI Connector CRM",
   "version": "0.1.0",
   "description": "Base Project Scaffold popup to call backend and store filter preferences.",
-  "background": {
-    "service_worker": "background.js"
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
   },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+},
+
+
   "permissions": [
     "storage",
     "scripting",
-    "tabs"
+    "tabs",
+    "alarms"
   ],
   "host_permissions": [
     "http://localhost:8000/*",
-    "http://127.0.0.1:8000/*"
+    "http://127.0.0.1:8000/*",
+    "https://localhost:8000/*",
+    "https://127.0.0.1:8000/*"
   ],
   "action": {
     "default_popup": "popup.html",
@@ -29,6 +40,12 @@
       "matches": ["*://*.facebook.com/*"],
       "js": ["content.js"],
       "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["labels.css", "extension.css", "icon48.png", "labels.html"],
+      "matches": ["*://*.facebook.com/*", "<all_urls>"]
     }
   ]
 }

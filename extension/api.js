@@ -64,16 +64,23 @@ export async function updateLabel(rawId, data, token) {
 }
 
 // 4) DELETE by id
+// api.js
 export async function deleteLabel(rawId, token) {
-  const id = sanitizeId(rawId);
+  const id  = sanitizeId(rawId);
   const url = `${BASE}/labels/${id}/`;
   console.log("▶ deleteLabel URL:", url);
+
   const res = await fetch(url, {
     method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
+    headers: { Authorization: `Bearer ${token}` }
   });
+
+  // Treat 404 as “already deleted”
+  if (res.status === 404) {
+    console.warn(`deleteLabel: label ${id} not found on server (404)`);
+    return;
+  }
+
   if (!res.ok) {
     const err = await res.text().catch(() => null);
     console.error("deleteLabel error:", err);

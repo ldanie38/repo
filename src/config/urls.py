@@ -1,3 +1,5 @@
+# src/config/urls.py
+
 from django.contrib import admin
 from django.urls import path, include
 from django.http import JsonResponse
@@ -13,25 +15,24 @@ def test_error(request):
     raise ValidationError("This is a test validation error")
 
 urlpatterns = [
+    # Home & Admin
     path("", home, name="home"),
     path("admin/", admin.site.urls),
 
-    # Health & test endpoints
-    path("", root_ok),
-    path("test/", test_error),
-    path("health/", health_check),
-
-    # JWT auth endpoints
-    path("api/auth/login/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
-    path("api/auth/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path("api/auth/", include("auth_app.urls")),
-
-    # CRM API
-    path("api/", include(("crm.urls", "crm"), namespace="crm")),
+    # Health & Test endpoints
+    path("", root_ok, name="root_ok"),
+    path("test/", test_error, name="test_error"),
+    path("health/", health_check, name="health_check"),
 
     # Extension landing page
     path("extension/landing/", extension_landing, name="extension_landing"),
+
+    # ----- Authentication -----
+    path("api/auth/login/",   TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/auth/refresh/", TokenRefreshView.as_view(),     name="token_refresh"),
+    path("api/auth/", include("auth_app.urls")),
+
+    # ----- CRM Endpoints -----
+    path("api/", include(("crm.urls", "crm"), namespace="crm")),
 ]
-
-
 

@@ -1,20 +1,17 @@
 import { getLabels, setLabels } from "./storage.js";
 
 // ==============================
-// Helpers & Constants
+// Constants & Helpers
 // ==============================
 const byId = id => document.getElementById(id);
 
-const baseURL = "http://localhost:8000"; 
+const baseURL = "http://localhost:8000";
 const api = {
-  labelsList:   `${baseURL}/api/labels/`,   // GET
-  labelsCreate: `${baseURL}/api/labels/`,   // POST
+  labelsList:   `${baseURL}/api/labels/`,    // GET
+  labelsCreate: `${baseURL}/api/labels/`,    // POST
   labelsDetail: id => `${baseURL}/api/labels/${id}/`  // PUT, DELETE
 };
 
-// ==============================
-// Utility: Contrast helper
-// ==============================
 function getContrastColor(hex) {
   if (!hex || typeof hex !== "string" || !hex.startsWith("#")) return "#fff";
   const r = parseInt(hex.substr(1, 2), 16);
@@ -25,31 +22,30 @@ function getContrastColor(hex) {
 }
 
 // ==============================
-// Helper: Add label to UI with Edit/Delete
+// Render Helpers
 // ==============================
 function addLabelToUI(name, color, id, labelList) {
   const li = document.createElement("li");
-  li.style.backgroundColor = color || "#777";
-  li.style.color           = getContrastColor(color || "#777");
-  li.style.padding         = "10px 12px";
-  li.style.borderRadius    = "8px";
-  li.style.fontWeight      = "600";
-  li.style.display         = "flex";
-  li.style.alignItems      = "center";
-  li.style.justifyContent  = "space-between";
-  li.style.gap             = "8px";
+  li.style.backgroundColor  = color || "#777";
+  li.style.color            = getContrastColor(color || "#777");
+  li.style.padding          = "10px 12px";
+  li.style.borderRadius     = "8px";
+  li.style.fontWeight       = "600";
+  li.style.display          = "flex";
+  li.style.alignItems       = "center";
+  li.style.justifyContent   = "space-between";
+  li.style.gap              = "8px";
 
   const span = document.createElement("span");
-  span.textContent = name;
-  span.style.flex      = "1";
-  span.style.textAlign = "center";
+  span.textContent    = name;
+  span.style.flex     = "1";
+  span.style.textAlign= "center";
 
   const editBtn = document.createElement("button");
   editBtn.textContent   = "✏️";
   editBtn.style.border  = "none";
   editBtn.style.background = "transparent";
   editBtn.style.cursor  = "pointer";
-
   editBtn.addEventListener("click", async () => {
     const newName = prompt("Edit label name:", name);
     if (!newName) return;
@@ -70,14 +66,15 @@ function addLabelToUI(name, color, id, labelList) {
         body: JSON.stringify({ name: newName, color })
       });
 
-      if (res.ok) {
-        const updated = await res.json();
-        span.textContent = updated.name;
-        name = updated.name;
-      } else {
+      if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         alert(`Update failed: ${err.detail || res.status}`);
+        return;
       }
+
+      const updated = await res.json();
+      span.textContent = updated.name;
+      name = updated.name;
     } catch (e) {
       console.error("Update error:", e);
       alert("Something went wrong updating label");
@@ -89,7 +86,6 @@ function addLabelToUI(name, color, id, labelList) {
   deleteBtn.style.border  = "none";
   deleteBtn.style.background = "transparent";
   deleteBtn.style.cursor  = "pointer";
-
   deleteBtn.addEventListener("click", async () => {
     if (!confirm(`Delete label "${name}"?`)) return;
 
@@ -107,12 +103,13 @@ function addLabelToUI(name, color, id, labelList) {
         }
       });
 
-      if (res.ok) {
-        li.remove();
-      } else {
+      if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         alert(`Delete failed: ${err.detail || res.status}`);
+        return;
       }
+
+      li.remove();
     } catch (e) {
       console.error("Delete error:", e);
       alert("Something went wrong deleting label");
@@ -126,10 +123,12 @@ function addLabelToUI(name, color, id, labelList) {
 }
 
 // ==============================
-// Load labels from backend
+// Load + Sync Labels
 // ==============================
 async function loadLabels(jwt) {
   const labelList = byId("labelList");
+  if (!labelList) return;
+
   try {
     const res = await fetch(api.labelsList, {
       headers: { "Authorization": `Bearer ${jwt}` }
@@ -138,21 +137,31 @@ async function loadLabels(jwt) {
       console.warn("Labels list request not OK", res.status);
       return;
     }
+
     const labels = await res.json().catch(() => []);
     labelList.innerHTML = "";
     labels.forEach(label => {
       addLabelToUI(label.name, label.color, label.id, labelList);
     });
+
+    // Overwrite local cache so “already exists” checks stay accurate
+    setLabels(labels);
   } catch (e) {
     console.error("Error loading labels:", e);
   }
 }
 
 // ==============================
-// DOMContentLoaded wiring
+// Popup Wiring
 // ==============================
 document.addEventListener("DOMContentLoaded", () => {
-  // Show Labels toggle
+  const labelList  = byId("labelList");
+  const input      = byId("newLabelInput");
+  const colorInput = byId("newLabelColorInput");
+  const brushIcon  = byId("brushIcon");
+  const btn        = byId("createLabelBtn");
+
+  // Show-Labels Toggle
   const showToggle = byId("showLabelsToggle");
   if (showToggle) {
     showToggle.addEventListener("change", function() {
@@ -164,7 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Login wiring
+  // Login Flow
   const loginBtn      = byId("loginBtn");
   const usernameInput = byId("username");
   const passwordInput = byId("password");
@@ -204,10 +213,10 @@ document.addEventListener("DOMContentLoaded", () => {
           return;
         }
 
-        const body = await res.json().catch(() => null);
+        const body  = await res.json().catch(() => null);
         const token = body?.access || body?.token || body?.jwt || body?.data?.token || body?.access_token;
         if (!token) {
-          console.warn("No token found in response", body);
+          console.warn("No token in response", body);
           statusEl.textContent = "Login response missing token";
           return;
         }
@@ -223,7 +232,7 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         });
 
-        statusEl.textContent = "Login successful";
+        statusEl.textContent   = "Login successful";
         loginSection.style.display  = "none";
         labelsSection.style.display = "block";
         document.body.classList.add("labels-mode");
@@ -236,7 +245,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Ping button wiring
+  // Ping Button
   const pingBtn = byId("pingBtn");
   if (pingBtn) {
     pingBtn.addEventListener("click", () => {
@@ -253,43 +262,32 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Drag & Drop for .feature items
+  // Drag & Drop Features (if present)
   const featuresContainer = document.querySelector(".features");
   if (featuresContainer) {
-    const featureItems = document.querySelectorAll(".feature");
-    featureItems.forEach(item => {
-      item.setAttribute("draggable", "true");
+    document.querySelectorAll(".feature").forEach(item => {
+      item.draggable = true;
       item.addEventListener("dragstart", () => item.classList.add("dragging"));
-      item.addEventListener("dragend", () => item.classList.remove("dragging"));
+      item.addEventListener("dragend",   () => item.classList.remove("dragging"));
     });
-
     featuresContainer.addEventListener("dragover", e => {
       e.preventDefault();
-      const after = getDragAfterElement(featuresContainer, e.clientY);
+      const after = (() => {
+        const draggables = [...featuresContainer.querySelectorAll(".feature:not(.dragging)")];
+        return draggables.reduce((closest, child) => {
+          const box    = child.getBoundingClientRect();
+          const offset = e.clientY - box.top - box.height / 2;
+          return (offset < 0 && offset > closest.offset)
+            ? { offset, element: child }
+            : closest;
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
+      })();
       const dragging = document.querySelector(".dragging");
-      if (!after) {
-        featuresContainer.appendChild(dragging);
-      } else {
-        featuresContainer.insertBefore(dragging, after);
-      }
+      featuresContainer.insertBefore(dragging, after || null);
     });
-
-    function getDragAfterElement(container, y) {
-      const elems = [...container.querySelectorAll(".feature:not(.dragging)")];
-      return elems.reduce((closest, child) => {
-        const box    = child.getBoundingClientRect();
-        const offset = y - box.top - box.height / 2;
-        if (offset < 0 && offset > closest.offset) {
-          return { offset, element: child };
-        }
-        return closest;
-      }, { offset: Number.NEGATIVE_INFINITY }).element;
-    }
   }
 
-  // Brush icon color picker
-  const colorInput = byId("newLabelColorInput");
-  const brushIcon  = document.querySelector(".brush-icon");
+  // Brush Icon & Color Picker
   if (colorInput && brushIcon) {
     brushIcon.addEventListener("click", () => colorInput.click());
     colorInput.addEventListener("input", () => {
@@ -297,11 +295,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Create Label (hybrid: local + backend)
-  const btn       = byId("createLabelBtn");
-  const input     = byId("newLabelInput");
-  const labelList = byId("labelList");
-
+  // Create Label Handler
   if (btn && input && colorInput && labelList) {
     btn.addEventListener("click", async () => {
       const labelName  = input.value.trim();
@@ -311,17 +305,14 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      // 1. Check locally for duplicates
-      const labels = await new Promise(resolve => getLabels(resolve));
+      // 1. Check local cache for duplicates
+      const labels = await new Promise(r => getLabels(r));
       if (labels.some(l => l.name.toLowerCase() === labelName.toLowerCase())) {
         alert("That label already exists.");
         return;
       }
 
-      // 2. Save locally
-      setLabels([...labels, { name: labelName, color: labelColor }]);
-
-      // 3. Push to backend
+      // 2. Push to backend
       const { jwt } = await chrome.storage.local.get(["jwt"]);
       if (!jwt) {
         alert("Please log in first.");
@@ -339,40 +330,40 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         const data = await res.json().catch(() => ({}));
-        if (res.ok) {
-          addLabelToUI(data.name || labelName,
-                       data.color || labelColor,
-                       data.id,
-                       labelList);
-          input.value      = "";
-          colorInput.value = "#ff0000";
-          brushIcon.style.color = "#ff0000";
-        } else {
-          alert(`Error: ${data.error || JSON.stringify(data)}`);
+        if (!res.ok) {
+          alert(`Error: ${data.error || res.status}`);
+          return;
         }
+
+        // 3. Update cache & re-render full list
+        const newLabel = { name: data.name, color: data.color, id: data.id };
+        setLabels([...labels, newLabel]);
+        loadLabels(jwt);
+
+        // 4. Reset inputs
+        input.value      = "";
+        colorInput.value = "#ff0000";
+        brushIcon.style.color = "#ff0000";
       } catch (e) {
-        console.error(e);
+        console.error("Create error:", e);
         alert("Something went wrong");
       }
     });
   }
 
-  // Load existing labels on popup open
+  // Initial Load
   if (labelList) {
-    (async () => {
-      const { jwt } = await chrome.storage.local.get(["jwt"]);
+    chrome.storage.local.get(["jwt"], ({ jwt }) => {
       if (jwt) loadLabels(jwt);
-    })();
+    });
   }
 
-  // Open full labels page
+  // Open Full Labels Page
   const openFullPage = byId("openFullPage");
   if (openFullPage) {
     openFullPage.addEventListener("click", e => {
       e.preventDefault();
-      chrome.tabs.create({
-        url: chrome.runtime.getURL("labels.html")
-      });
+      chrome.tabs.create({ url: chrome.runtime.getURL("labels.html") });
     });
   }
 });

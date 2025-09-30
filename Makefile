@@ -1,73 +1,52 @@
-# --- Config ---
-PORT ?= 8000
-COMPOSE_FILE = docker/docker-compose.yml
-SRC_PATH := $(shell pwd)/src
+# Makefile at repo root for managing Django + Docker Compose
 
-# Default shell
-SHELL := /bin/bash
+COMPOSE_FILE=docker/docker-compose.yml
+SERVICE=web
 
-# --- Full project setup (Docker) ---
-setup:
-	@echo "🚀 Starting full project setup..."
-    # 1. Copy env file if it doesn't exist
-	@if [ ! -f .env ]; then \
-		cp .env.example .env && echo "✅ .env created from .env.example"; \
-	else \
-		echo "ℹ️  .env already exists, skipping copy"; \
-	fi
-    # 2. Build and start containers
-	cd docker && docker compose up --build -d
-    # 3. Apply Django migrations
-	cd docker && docker compose exec web python manage.py migrate
-    # 4. Create superuser if none exists
-	cd docker && docker compose exec web bash -c "echo 'from django.contrib.auth import get_user_model; \
-User = get_user_model(); \
-User.objects.create_superuser(\"admin@example.com\", \"adminpass\") if not User.objects.exists() else print(\"Superuser already exists\")' | python manage.py shell"
-	@echo "🎯 Setup complete! Visit http://localhost:8000/admin"
+# Start containers in detached mode
+up:
+	docker compose -f $(COMPOSE_FILE) up -d
 
-# --- Phony targets ---
-.PHONY: up down migrate test setup setup-venv dev check-docker check-env run shell check logs restart
-
-# --- Environment + Docker checks ---
-check-docker:
-	@docker info > /dev/null 2>&1 || (echo "❌ Docker is not running. Please start Docker Desktop." && exit 1)
-
-check-env:
-	@test -f .env || (echo "❌ .env file missing. Run: cp .env.example .env" && exit 1)
-
-# --- Container commands ---
-up: check-docker check-env
-    PORT=$(PORT) docker compose -f $(COMPOSE_FILE) up --build
-
+# Stop and remove containers
 down:
-	docker compose -f $(COMPOSE_FILE) down --volumes
+	docker compose -f $(COMPOSE_FILE) down
 
+# Build (or rebuild) images
+build:
+	docker compose -f $(COMPOSE_FILE) build
+
+# Run Django dev server inside the web container
+runserver:
+	docker compose -f $(COMPOSE_FILE) exec $(SERVICE) python manage.py runserver 0.0.0.0:8000
+
+# Apply migrations
 migrate:
-    PORT=$(PORT) docker compose -f $(COMPOSE_FILE) exec web python manage.py migrate
+	docker compose -f $(COMPOSE_FILE) exec $(SERVICE) python manage.py migrate
 
-test:
-    PORT=$(PORT) docker compose -f $(COMPOSE_FILE) exec web pytest --maxfail=1 --disable-warnings -q
+# Create new migrations
+makemigrations:
+	docker compose -f $(COMPOSE_FILE) exec $(SERVICE) python manage.py makemigrations
 
-# --- Local dev helpers ---
-setup-venv:
-	python -m venv venv
-	. venv/bin/activate && pip install -r requirements.txt
-
-run:
-    PYTHONPATH=./src python manage.py runserver 0.0.0.0:$(PORT)
-
+# Open a Django shell
 shell:
-    PYTHONPATH=./src python manage.py shell
+	docker compose -f $(COMPOSE_FILE) exec $(SERVICE) python manage.py shell
 
-check:
-    export PYTHONPATH=$(SRC_PATH) && python manage.py check
-
+# Tail logs for the web service
 logs:
-    PORT=$(PORT) docker compose -f $(COMPOSE_FILE) logs -f
+	docker compose -f $(COMPOSE_FILE) logs -f $(SERVICE)
 
-restart: down
-    PORT=$(PORT) docker compose -f $(COMPOSE_FILE) up -d --build
-    PORT=$(PORT) docker compose -f $(COMPOSE_FILE) exec web env | grep POSTGRES_PORT
+# Restart everything (down + up + runserver)
+restart: down up runserver
 
-# --- One-command dev start ---
-dev: setup run
+
+# Now you can run:
+
+# make build   → rebuilds your images (same as docker compose build).
+
+# make up      → start containers
+
+# make runserver     → run Django dev server inside the web container
+
+# make migrate       / make makemigrations → manage DB
+
+# make restart     → full cycle refresh

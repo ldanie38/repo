@@ -1,11 +1,12 @@
 from django.contrib.auth import get_user_model
-from rest_framework import viewsets
+from rest_framework import viewsets, permissions
 from .models import Lead, Campaign, Tag, Label
 from .serializers import (
     UserSerializer,
     LeadSerializer,
     CampaignSerializer,
     TagSerializer,
+    LabelSerializer,
 )
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -95,3 +96,7 @@ def create_label(request):
 
     return JsonResponse({"error": "Invalid method"}, status=405)
 
+class LabelViewSet(viewsets.ModelViewSet):
+    queryset = Label.objects.all()
+    serializer_class = LabelSerializer
+    permission_classes = [permissions.IsAuthenticated]

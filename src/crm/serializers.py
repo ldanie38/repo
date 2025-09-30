@@ -3,6 +3,7 @@ from rest_framework import serializers
 from .models import Lead, Campaign, Tag, Label
 
 
+
 User = get_user_model()
 
 
@@ -43,3 +44,6 @@ class LabelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Label
         fields = ["id", "name", "color"]
+        
+
+

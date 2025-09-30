@@ -372,4 +372,62 @@ document.addEventListener("DOMContentLoaded", () => {
       chrome.tabs.create({ url: chrome.runtime.getURL("labels.html") });
     });
   }
+   // ===== Forgot Password (UI-only) =====
+   const forgotBtn     = byId("forgotBtn");
+   const forgotDialog  = byId("forgotDialog");
+   const forgotForm    = byId("forgotForm");
+   const forgotEmail   = byId("forgotEmail");
+   const forgotCancel  = byId("forgotCancel");
+   const forgotSuccess = byId("forgotSuccess");
+   const forgotOk      = byId("forgotOk");
+ 
+   if (forgotBtn && forgotDialog) {
+     const resetForgotView = () => {
+       if (forgotForm)    forgotForm.classList.remove("hidden");
+       if (forgotSuccess) forgotSuccess.classList.add("hidden");
+       if (forgotEmail)   forgotEmail.value = "";
+     };
+ 
+     const closeForgot = () => {
+       forgotDialog.style.display = "none";
+       resetForgotView();
+       // Return focus back to the trigger for good UX
+       setTimeout(() => forgotBtn.focus(), 0);
+     };
+ 
+     forgotBtn.addEventListener("click", () => {
+       forgotDialog.style.display = "block";
+       resetForgotView();
+       // Focus the email field for quick typing
+       if (forgotEmail) setTimeout(() => forgotEmail.focus(), 0);
+     });
+ 
+     if (forgotForm) {
+       // Send: swap to success message (no backend calls)
+       forgotForm.addEventListener("submit", (e) => {
+         e.preventDefault();
+         forgotForm.classList.add("hidden");
+         if (forgotSuccess) {
+           forgotSuccess.classList.remove("hidden");
+           if (forgotOk) setTimeout(() => forgotOk.focus(), 0);
+         }
+       });
+     }
+ 
+     if (forgotCancel) {
+       // Cancel: close and restore focus to trigger
+       forgotCancel.addEventListener("click", (e) => {
+         e.preventDefault();
+         closeForgot();
+       });
+     }
+ 
+     if (forgotOk) {
+       // OK: close and restore focus to trigger
+       forgotOk.addEventListener("click", (e) => {
+         e.preventDefault();
+         closeForgot();
+       });
+     }
+   }
 });

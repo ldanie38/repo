@@ -14,6 +14,24 @@
 
   <div id="loginSection">
     <section>
+       <!-- Forgot Password Dialog (UI-only) -->
+      <section id="forgotDialog" style="display:none;">
+        <h3>Reset Password</h3>
+
+        <form id="forgotForm">
+          <input id="forgotEmail" type="email" placeholder="Email" required />
+          <div style="display:flex; gap:8px;">
+            <button id="forgotSend" type="submit">Send</button>
+            <button id="forgotCancel" type="button">Cancel</button>
+          </div>
+        </form>
+
+        <div id="forgotSuccess" class="hidden">
+          <p>If this email exists, we’ve sent a password reset link.</p>
+          <button id="forgotOk" type="button">OK</button>
+        </div>
+      </section>
+
       <h3>Login</h3>
       <input id="username" type="text" placeholder="Username" />
       <input id="password" type="password" placeholder="Password" />

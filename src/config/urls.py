@@ -5,6 +5,7 @@ from django.urls import path, include
 from django.http import JsonResponse
 from django.core.exceptions import ValidationError
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from django.http import JsonResponse
 
 from config.views import home, extension_landing, health_check
 
@@ -15,6 +16,8 @@ def test_error(request):
     raise ValidationError("This is a test validation error")
 
 urlpatterns = [
+    # Health check endpoint
+    path("api/health/", lambda request: JsonResponse({"status": "ok"})),
     # Home & Admin
     path("", home, name="home"),
     path("admin/", admin.site.urls),

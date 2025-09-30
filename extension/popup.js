@@ -110,6 +110,12 @@ function addLabelToUI(name, color, id, labelList) {
       }
 
       li.remove();
+
+      // 2) Remove from local cache
+      const labelsCache = await new Promise(resolve => getLabels(resolve));
+      const filtered    = labelsCache.filter(l => l.id !== id);
+      setLabels(filtered);
+
     } catch (e) {
       console.error("Delete error:", e);
       alert("Something went wrong deleting label");

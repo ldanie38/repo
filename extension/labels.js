@@ -29,3 +29,16 @@ document.addEventListener("DOMContentLoaded", () => {
     if (area === "local" && changes.labels) render();
   });
 });
+
+// Returns black or white depending on background brightness
+function getContrastColor(hex) {
+  if (!hex) return "#000";
+  const c = hex.substring(1); // strip #
+  const rgb = parseInt(c, 16); // convert rrggbb to decimal
+  const r = (rgb >> 16) & 0xff;
+  const g = (rgb >> 8) & 0xff;
+  const b = (rgb >> 0) & 0xff;
+  const luma = 0.299 * r + 0.587 * g + 0.114 * b; // perceptual brightness
+  return luma > 186 ? "#000000" : "#ffffff";
+}
+

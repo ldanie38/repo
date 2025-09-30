@@ -6,7 +6,7 @@
 const BASE = "http://localhost:8000/api";
 
 
-// Pull all labels
+// Show all labels
 export async function pullLabels(token) {
   const res = await fetch(`${BASE}/labels/`, {
     headers: {
@@ -36,3 +36,22 @@ export async function pushLabel(label, token) {
 }
 
 
+export async function updateLabel(id, data, jwt) {
+  return fetch(`${api.labelsUpdate}${id}/`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${jwt}`,
+    },
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteLabel(id, jwt) {
+  return fetch(`${api.labelsDelete}${id}/`, {
+    method: "DELETE",
+    headers: {
+      "Authorization": `Bearer ${jwt}`,
+    },
+  });
+}

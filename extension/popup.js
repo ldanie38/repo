@@ -226,17 +226,32 @@ document.addEventListener("DOMContentLoaded", () => {
           statusEl.textContent = "Login response missing token";
           return;
         }
-
         chrome.storage.local.set({ jwt: token }, () => {
           console.log("[CRM] Token saved to storage.");
+        
+          // 1) Remove any stale labels
+          chrome.storage.local.remove(["labels"], () => {
+            console.log("[CRM] Old labels cleared");
+        
+            // 2) Now show the labels UI and fetch fresh labels
+            statusEl.textContent        = "Login successful";
+            loginSection.style.display  = "none";
+            labelsSection.style.display = "block";
+            document.body.classList.add("labels-mode");
+            loadLabels(token);
+          });
+        
+          // 3) Let the background know about the new token
           try {
-            chrome.runtime.sendMessage({ action: "setToken", token }, resp => {
-              console.log("background setToken reply", resp);
-            });
+            chrome.runtime.sendMessage(
+              { action: "setToken", token },
+              resp => console.log("background setToken reply", resp)
+            );
           } catch (e) {
             console.warn("sendMessage setToken failed", e);
           }
         });
+        
 
         statusEl.textContent   = "Login successful";
         loginSection.style.display  = "none";

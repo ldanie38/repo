@@ -392,13 +392,35 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 //logout
-logoutLink.addEventListener("click", e => {
-  e.preventDefault();
-  chrome.runtime.sendMessage({ action: "logout" }, resp => {
+// popup.js
+document.addEventListener("DOMContentLoaded", () => {
+  const byId          = id => document.getElementById(id);
+  const loginSection  = byId("loginSection");
+  const labelsSection = byId("labelsSection");
+  const statusEl      = byId("status");
+  const logoutLink    = byId("logoutLink");
+
+  if (!logoutLink) return;
+
+  logoutLink.addEventListener("click", async e => {
+    e.preventDefault();
+
+    // Tell background to clear JWT + labels
+    const resp = await new Promise(resolve =>
+      chrome.runtime.sendMessage({ action: "logout" }, resolve)
+    );
+
     if (resp.success) {
-      loginSection.style.display  = "block";
+      // 1) Hide labels UI
       labelsSection.style.display = "none";
-      statusEl.textContent        = "";
+      // 2) Show login UI
+      loginSection.style.display = "block";
+      // 3) Clear any status messages
+      statusEl.textContent = "";
+      // 4) Clear in-popup cache (if you have one)
+      //    e.g. labels = []; setLabels([]); render empty list
+    } else {
+      console.error("Logout failed:", resp);
     }
   });
 });

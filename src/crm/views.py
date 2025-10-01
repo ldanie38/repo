@@ -42,13 +42,13 @@ class TagViewSet(viewsets.ModelViewSet):
 
 # ——— LABEL VIEWSET ———
 class LabelViewSet(viewsets.ModelViewSet):
-    """
-    GET    /api/labels/
-    POST   /api/labels/
-    GET    /api/labels/{id}/
-    PUT    /api/labels/{id}/
-    DELETE /api/labels/{id}/
-    """
-    queryset = Label.objects.all()
-    serializer_class = LabelSerializer
+    serializer_class   = LabelSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Label.objects.filter(owner=self.request.user)
+
+    def perform_create(self, serializer):
+        # stamp the new Label with the current user
+        serializer.save(owner=self.request.user)
+

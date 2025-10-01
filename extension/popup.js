@@ -128,6 +128,8 @@ function addLabelToUI(name, color, id, labelList) {
   labelList.appendChild(li);
 }
 
+
+
 // ==============================
 // Load + Sync Labels
 // ==============================
@@ -388,3 +390,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+//logout
+logoutLink.addEventListener("click", e => {
+  e.preventDefault();
+  chrome.runtime.sendMessage({ action: "logout" }, resp => {
+    if (resp.success) {
+      loginSection.style.display  = "block";
+      labelsSection.style.display = "none";
+      statusEl.textContent        = "";
+    }
+  });
+});
+

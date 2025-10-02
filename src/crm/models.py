@@ -74,7 +74,7 @@ class Lead(models.Model):
 
 
 class Label(models.Model):
-# models.py
+
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,

@@ -13,6 +13,8 @@ const api = {
   labelsDetail: id => `${baseURL}/api/labels/${id}/`
 };
 
+let draggedId = null;
+
 function getContrastColor(hex) {
   if (!hex || typeof hex !== "string" || !hex.startsWith("#")) return "#fff";
   const r = parseInt(hex.substr(1, 2), 16);
@@ -22,9 +24,65 @@ function getContrastColor(hex) {
   return brightness > 128 ? "#000" : "#fff";
 }
 
+// Attach drag handlers to a <li>
+function attachDragHandlers(li) {
+  li.addEventListener("dragstart", e => {
+    draggedId = li.dataset.id;
+    e.dataTransfer.effectAllowed = "move";
+  });
+
+  li.addEventListener("dragover", e => {
+    e.preventDefault();
+    li.classList.add("drag-over");
+  });
+
+  li.addEventListener("dragleave", () => {
+    li.classList.remove("drag-over");
+  });
+
+  li.addEventListener("drop", () => {
+    li.classList.remove("drag-over");
+    reorderLabels(draggedId, li.dataset.id);
+  });
+}
+
+// Reorder DOM, local cache, and optional backend sync
+function reorderLabels(fromId, toId) {
+  const listEl = byId("labelList");
+  const fromEl = listEl.querySelector(`[data-id="${fromId}"]`);
+  const toEl   = listEl.querySelector(`[data-id="${toId}"]`);
+
+  if (fromEl && toEl) {
+    listEl.insertBefore(fromEl, toEl.nextSibling);
+  }
+
+  const newOrder = Array.from(listEl.children).map(li => li.dataset.id);
+
+  // update local cache
+  getLabels(cache => {
+    const reordered = newOrder
+      .map(id => cache.find(l => l.id.toString() === id))
+      .filter(Boolean);
+    setLabels(reordered);
+  });
+
+  // push to backend if endpoint exists
+  fetch(`${api.labelsList}reorder/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("jwt")}`
+    },
+    body: JSON.stringify({ order: newOrder })
+  }).catch(console.error);
+}
+
 // Render one label row
 function addLabelToUI(name, color, id, listEl) {
   const li = document.createElement("li");
+  li.draggable = true;
+  li.dataset.id = id;
+
   // styling...
   li.style.backgroundColor = color || "#777";
   li.style.color           = getContrastColor(color);
@@ -37,8 +95,8 @@ function addLabelToUI(name, color, id, listEl) {
 
   const span = document.createElement("span");
   span.textContent = name;
-  span.style.flex           = "1";
-  span.style.textAlign      = "left";
+  span.style.flex      = "1";
+  span.style.textAlign = "left";
   li.appendChild(span);
 
   // EDIT button
@@ -70,7 +128,6 @@ function addLabelToUI(name, color, id, listEl) {
     span.textContent = updated.name;
     name = updated.name;
 
-    // sync storage
     const cache = await new Promise(r => getLabels(r));
     setLabels(cache.map(l => l.id === id ? { ...l, name: updated.name } : l));
   });
@@ -102,13 +159,15 @@ function addLabelToUI(name, color, id, listEl) {
   });
   li.appendChild(deleteBtn);
 
+  // attach drag handlers
+  attachDragHandlers(li);
+
   listEl.appendChild(li);
 }
 
 // Fetch & return an array of labels
 async function loadLabels() {
   const { jwt } = await chrome.storage.local.get(["jwt"]);
-  console.log("⚙️ loadLabels token →", jwt);
   if (!jwt) {
     console.warn("No JWT, skipping labels fetch");
     return [];
@@ -120,19 +179,11 @@ async function loadLabels() {
       "Content-Type":  "application/json"
     }
   });
-  if (res.status === 401) {
-    console.error("Labels fetch unauthorized (401)");
-    return [];
-  }
-  if (!res.ok) {
-    console.warn("Labels list request not OK", res.status);
-    return [];
-  }
+  if (!res.ok) return [];
   try {
     const data = await res.json();
     return Array.isArray(data) ? data : [];
-  } catch (err) {
-    console.error("Failed to parse labels JSON", err);
+  } catch {
     return [];
   }
 }
@@ -143,7 +194,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const nameInput  = byId("newLabelInput");
   const colorInput = byId("newLabelColorInput");
   const createBtn  = byId("createLabelBtn");
-  const statusEl   = byId("status");
 
   // CREATE
   createBtn.addEventListener("click", async () => {
@@ -167,8 +217,8 @@ document.addEventListener("DOMContentLoaded", () => {
       },
       body: JSON.stringify({ name, color })
     });
-    const data = await res.json().catch(() => ({}));
     if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
       return alert(`Error creating label: ${data.detail || res.status}`);
     }
 
@@ -183,10 +233,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // INITIAL LOAD
   loadLabels().then(labels => {
-    if (!labels.length) {
-      statusEl.textContent = "No labels or not authenticated.";
-      return;
-    }
     listEl.innerHTML = "";
     labels.forEach(l => addLabelToUI(l.name, l.color, l.id, listEl));
     setLabels(labels);

@@ -1,5 +1,7 @@
 from django.db import models
 from django.conf import settings  # <--instead of get_user_model
+from django.core.validators import RegexValidator
+
 
 
 class Campaign(models.Model):
@@ -69,17 +71,29 @@ class Lead(models.Model):
         return f"{self.name} <{self.email}>"
 
 
-from django.core.validators import RegexValidator
+
 
 class Label(models.Model):
-    name = models.CharField(max_length=50, unique=True)
+
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="labels",
+        null=True,
+        blank=True
+    )
+
+    name = models.CharField(max_length=50)
     color = models.CharField(
         max_length=7,
         default="#ffffff",
-        validators=[RegexValidator(regex=r'^#[0-9A-Fa-f]{6}$',
-                                   message="Enter a valid hex color, e.g. #1A2B3C")]
+        validators=[RegexValidator(regex=r'^#[0-9A-Fa-f]{6}$')]
     )
+
+    class Meta:
+        unique_together = ("owner", "name")
 
     def __str__(self):
         return f"{self.name} ({self.color})"
+
 

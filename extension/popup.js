@@ -128,6 +128,8 @@ function addLabelToUI(name, color, id, labelList) {
   labelList.appendChild(li);
 }
 
+
+
 // ==============================
 // Load + Sync Labels
 // ==============================
@@ -226,17 +228,32 @@ document.addEventListener("DOMContentLoaded", () => {
           statusEl.textContent = "Login response missing token";
           return;
         }
-
         chrome.storage.local.set({ jwt: token }, () => {
           console.log("[CRM] Token saved to storage.");
+        
+          // 1) Remove any stale labels
+          chrome.storage.local.remove(["labels"], () => {
+            console.log("[CRM] Old labels cleared");
+        
+            // 2) Now show the labels UI and fetch fresh labels
+            statusEl.textContent        = "Login successful";
+            loginSection.style.display  = "none";
+            labelsSection.style.display = "block";
+            document.body.classList.add("labels-mode");
+            loadLabels(token);
+          });
+        
+          // 3) Let the background know about the new token
           try {
-            chrome.runtime.sendMessage({ action: "setToken", token }, resp => {
-              console.log("background setToken reply", resp);
-            });
+            chrome.runtime.sendMessage(
+              { action: "setToken", token },
+              resp => console.log("background setToken reply", resp)
+            );
           } catch (e) {
             console.warn("sendMessage setToken failed", e);
           }
         });
+        
 
         statusEl.textContent   = "Login successful";
         loginSection.style.display  = "none";
@@ -269,30 +286,53 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Drag & Drop Features (if present)
-  const featuresContainer = document.querySelector(".features");
-  if (featuresContainer) {
-    document.querySelectorAll(".feature").forEach(item => {
-      item.draggable = true;
-      item.addEventListener("dragstart", () => item.classList.add("dragging"));
-      item.addEventListener("dragend",   () => item.classList.remove("dragging"));
+  document.addEventListener("DOMContentLoaded", () => {
+    const featuresContainer = document.querySelector(".container_right");
+    if (!featuresContainer) {
+      console.warn("No .features container found—skipping drag & drop");
+      return;
+    }
+  
+    // 1) Make each .feature draggable, and set some drag data so the browser actually starts dragging
+    document.querySelectorAll(".container_right").forEach(item => {
+      item.setAttribute("draggable", "true");
+      item.addEventListener("dragstart", e => {
+        e.dataTransfer.effectAllowed = "move";
+        // must set some data or Chrome won’t fire dragover in popups
+        e.dataTransfer.setData("text/plain", "");
+        item.classList.add("dragging");
+      });
+      item.addEventListener("dragend", () => item.classList.remove("dragging"));
     });
+  
+    // 2) On dragover, figure out which element you’re hovering and insert accordingly
     featuresContainer.addEventListener("dragover", e => {
       e.preventDefault();
-      const after = (() => {
-        const draggables = [...featuresContainer.querySelectorAll(".feature:not(.dragging)")];
-        return draggables.reduce((closest, child) => {
-          const box    = child.getBoundingClientRect();
-          const offset = e.clientY - box.top - box.height / 2;
-          return (offset < 0 && offset > closest.offset)
-            ? { offset, element: child }
-            : closest;
-        }, { offset: Number.NEGATIVE_INFINITY }).element;
-      })();
-      const dragging = document.querySelector(".dragging");
-      featuresContainer.insertBefore(dragging, after || null);
+  
+      // helper: find the element immediately after the pointer
+      const getAfterElement = (container, y) => {
+        const draggableEls = [
+          ...container.querySelectorAll(".feature:not(.dragging)")
+        ];
+        return draggableEls
+          .map(child => {
+            const box = child.getBoundingClientRect();
+            return { 
+              offset: y - box.top - box.height / 2, 
+              element: child 
+            };
+          })
+          .filter(item => item.offset < 0)
+          .sort((a, b) => b.offset - a.offset)[0]?.element || null;
+      };
+  
+      const afterEl = getAfterElement(featuresContainer, e.clientY);
+      const dragging = featuresContainer.querySelector(".dragging");
+      // if no element below, append to end; otherwise insert before "afterEl"
+      featuresContainer.insertBefore(dragging, afterEl);
     });
-  }
-
+  });
+  
   // Brush Icon & Color Picker
   if (colorInput && brushIcon) {
     brushIcon.addEventListener("click", () => colorInput.click());
@@ -373,3 +413,38 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 });
+
+//logout
+// popup.js
+document.addEventListener("DOMContentLoaded", () => {
+  const byId          = id => document.getElementById(id);
+  const loginSection  = byId("loginSection");
+  const labelsSection = byId("labelsSection");
+  const statusEl      = byId("status");
+  const logoutLink    = byId("logoutLink");
+
+  if (!logoutLink) return;
+
+  logoutLink.addEventListener("click", async e => {
+    e.preventDefault();
+
+    // Tell background to clear JWT + labels
+    const resp = await new Promise(resolve =>
+      chrome.runtime.sendMessage({ action: "logout" }, resolve)
+    );
+
+    if (resp.success) {
+      // 1) Hide labels UI
+      labelsSection.style.display = "none";
+      // 2) Show login UI
+      loginSection.style.display = "block";
+      // 3) Clear any status messages
+      statusEl.textContent = "";
+      // 4) Clear in-popup cache (if you have one)
+      //    e.g. labels = []; setLabels([]); render empty list
+    } else {
+      console.error("Logout failed:", resp);
+    }
+  });
+});
+

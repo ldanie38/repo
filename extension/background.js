@@ -5,6 +5,30 @@ import { getLabels, setLabels } from "./storage.js";
 
 const SYNC_FLAG = "_syncing_labels";
 
+
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  // — Handle logout: clear both jwt & labels, then confirm
+  if (request.action === "logout") {
+    chrome.storage.local.remove(["jwt", "labels"], () => {
+      sendResponse({ success: true });
+    });
+    return true;  // keep the message channel open for async sendResponse
+  }
+
+  // — (Optional)  setToken if you’re sending it
+  if (request.action === "setToken") {
+    // no extra work needed here, but we confirm receipt
+    sendResponse({ ok: true });
+  }
+
+  //  existing ping handler
+  if (request.action === "ping") {
+    sendResponse({ fromBackground: true, payload: request.payload });
+  }
+});
+
+
 // 1) INSTALL HOOK
 chrome.runtime.onInstalled.addListener(() => {
   console.log("FACRM extension installed (background worker ready).");
@@ -111,3 +135,5 @@ chrome.alarms.onAlarm.addListener(alarm => {
     });
   });
 });
+
+

@@ -430,4 +430,119 @@ document.addEventListener("DOMContentLoaded", () => {
        });
      }
    }
+
+
+
+
+
+    // ===== Update Password (JWT required) =====
+    const updateLink = byId("updatePasswordLink");
+    const dlg        = byId("changePasswordDialog");
+
+    // Scope all queries to the dialog so we only toggle inside it
+    const form     = dlg?.querySelector("#changePasswordForm");
+    const curInput = dlg?.querySelector("#currentPasswordInput");
+    const newInput = dlg?.querySelector("#newPasswordInput");
+    const btnCancel= dlg?.querySelector("#changePasswordCancel");
+    const okView   = dlg?.querySelector("#changePasswordSuccess");
+    const okBtn    = dlg?.querySelector("#changePasswordOk");
+    const errMsg   = dlg?.querySelector("#changePasswordError");
+
+    const resetChangeDialogState = () => {
+      if (errMsg) errMsg.classList.add("hidden");
+      if (okView) okView.classList.add("hidden");
+      if (form)   form.classList.remove("hidden");
+      if (curInput) curInput.value = "";
+      if (newInput) newInput.value = "";
+    };
+
+   const openChangeDialog = async () => {
+    const { jwt } = await chrome.storage.local.get(["jwt"]);
+    if (!jwt) { alert("Please log in first."); return; }
+
+    dlg.style.display = "block";
+    resetChangeDialogState();
+    setTimeout(() => curInput?.focus(), 0);
+  };
+
+  const closeChangeDialog = () => {
+    resetChangeDialogState();        // <— ensure clean state for next open
+    dlg.style.display = "none";
+    setTimeout(() => updateLink?.focus(), 0);
+  };
+
+
+  if (updateLink && dlg) {
+    updateLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      openChangeDialog();
+    });
+  }
+
+  if (btnCancel) {
+    btnCancel.addEventListener("click", (e) => {
+      e.preventDefault();
+      closeChangeDialog();
+    });
+  }
+
+  if (okBtn) {
+    okBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      closeChangeDialog();
+    });
+  }
+
+  if (form) {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+  
+      // If browser says form invalid, don't flip any UI
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+  
+      if (errMsg) errMsg.classList.add("hidden");
+  
+      const current_password = (curInput?.value || "").trim();
+      const new_password     = (newInput?.value || "").trim();
+  
+      const { jwt } = await chrome.storage.local.get(["jwt"]);
+      if (!jwt) { alert("Please log in first."); return; }
+  
+      try {
+        const res = await fetch(`${baseURL}/api/auth/password/change/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${jwt}`
+          },
+          body: JSON.stringify({ current_password, new_password })
+        });
+  
+        if (res.ok) {
+          const body = await res.json().catch(() => ({}));
+          if (body && body.ok === true) {
+            form.classList.add("hidden");
+            okView.classList.remove("hidden");
+            setTimeout(() => okBtn?.focus(), 0);
+            return; // IMPORTANT—do not fall through to error
+          }
+        }
+  
+        // Failure: show generic error AND make sure success is hidden + form shown
+        if (okView) okView.classList.add("hidden");
+        if (form)   form.classList.remove("hidden");
+        if (errMsg) errMsg.classList.remove("hidden");
+      } catch (err) {
+        console.warn("password change request failed", err);
+        if (okView) okView.classList.add("hidden");
+        if (form)   form.classList.remove("hidden");
+        if (errMsg) errMsg.classList.remove("hidden");
+      }
+    });
+  }
+  
+
 });

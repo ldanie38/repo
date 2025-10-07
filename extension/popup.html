@@ -76,6 +76,25 @@
      
 
         <div class="feature">
+          <!-- Update Password Dialog (hidden by default) -->
+          <section id="changePasswordDialog" style="display:none;">
+            <h3>Update Password</h3>
+
+            <form id="changePasswordForm">
+              <input id="currentPasswordInput" type="password" placeholder="Current password" required />
+              <input id="newPasswordInput" type="password" placeholder="New password" required />
+              <div style="display:flex; gap:8px;">
+                <button id="changePasswordSubmit" type="submit">Change</button>
+                <button id="changePasswordCancel" type="button">Cancel</button>
+              </div>
+              <div id="changePasswordError" class="status error hidden">Invalid password change request</div>
+            </form>
+
+            <div id="changePasswordSuccess" class="hidden">
+              <p>Password updated successfully.</p>
+              <button id="changePasswordOk" type="button">OK</button>
+            </div>
+          </section>
           <p>
             <a href="#" id="updatePasswordLink">Update Password</a> &nbsp;||&nbsp;
             <a href="#" id="logoutLink">Log Out</a>

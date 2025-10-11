@@ -1,16 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Genius Messenger CRM – Labels</title>
 
-  <!-- Full page styles -->
-  <link rel="stylesheet" href="css/labels.css">
-  <!-- Font Awesome for brush/trash icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-<!-- For the color picker icon-->
-  <script src="https://kit.fontawesome.com/yourkitid.js" crossorigin="anonymous"></script>
-</head>
+  <!-- page’s CSS -->
+  <link rel="stylesheet" href="css/labels.css" />
+
+  <!-- Font Awesome (only one version!) -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    integrity="sha512-…"
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+
+  <!-- Font Awesome JS; add defer so it won’t block parsing -->
+  <script
+    defer
+    src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js"
+    integrity="sha512-…"
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  ></script>
 <body class="labels-mode">
   
   <!-- Page Title -->
@@ -58,7 +71,11 @@
           
 
         <!-- Dynamic label list -->
+
         <ul id="labelList"></ul>
+        <p id="status" class="u-muted"></p>
+
+        </ul>
       </div>
     </div>
   </div>

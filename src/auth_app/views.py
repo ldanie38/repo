@@ -1,16 +1,13 @@
-# src/auth_app/views.py
-
 from django.shortcuts import render  # (unused by API views but fine to keep)
 
 # DRF imports
-from rest_framework import generics
+from rest_framework import generics, permissions
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.throttling import ScopedRateThrottle
 
 # Django auth utilities
-from django.contrib.auth.models import User as DjangoUser  # keep for RegisterView
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 
@@ -26,12 +23,8 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework.permissions import IsAuthenticated
 
 class RegisterView(generics.CreateAPIView):
-    """
-    Public registration endpoint (if you keep it enabled):
-    POST body is validated by RegisterSerializer.
-    """
-    queryset = DjangoUser.objects.all()
-    permission_classes = [AllowAny]
+    queryset = get_user_model().objects.none()
+    permission_classes = [permissions.AllowAny]
     serializer_class = RegisterSerializer
 
 

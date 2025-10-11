@@ -1,29 +1,32 @@
-
-
-
-// Simple helpers for pushing/pulling labels to your backend
+// api.js
 
 const BASE = "http://localhost:8000/api";
 
+// strip any leading colon so "/:1/" → "/1/"
+function sanitizeId(rawId) {
+  const s = `${rawId}`;
+  return s.startsWith(":") ? s.slice(1) : s;
+}
 
-// Show all labels
+// 1) GET all labels
 export async function pullLabels(token) {
   const res = await fetch(`${BASE}/labels/`, {
+    method: "GET",
     headers: {
-      "Authorization": `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json"
     }
   });
   if (!res.ok) throw new Error(`Pull failed: ${res.status}`);
-  return res.json(); // returns an array of labels
+  return res.json();
 }
 
-// Push (create or update) a single label
+// 2) POST new label
 export async function pushLabel(label, token) {
-  const res = await fetch(`${BASE}/labels/create/`, {
+  const res = await fetch(`${BASE}/labels/`, {
     method: "POST",
     headers: {
-      "Authorization": `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json"
     },
     body: JSON.stringify({
@@ -31,27 +34,56 @@ export async function pushLabel(label, token) {
       color: label.color || "#ffffff"
     })
   });
-  if (!res.ok) throw new Error(`Push failed: ${res.status}`);
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    console.error("pushLabel error:", err);
+    throw new Error(`Push failed: ${res.status}`);
+  }
   return res.json();
 }
 
-
-export async function updateLabel(id, data, jwt) {
-  return fetch(`${api.labelsUpdate}${id}/`, {
+// 3) PUT update
+export async function updateLabel(rawId, data, token) {
+  const id = sanitizeId(rawId);
+  const url = `${BASE}/labels/${id}/`;
+  console.log("▶ updateLabel URL:", url);
+  const res = await fetch(url, {
     method: "PUT",
     headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${jwt}`,
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json"
     },
-    body: JSON.stringify(data),
+    body: JSON.stringify(data)
   });
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    console.error("updateLabel error:", err);
+    throw new Error(`Update failed: ${res.status}`);
+  }
+  return res.json();
 }
 
-export async function deleteLabel(id, jwt) {
-  return fetch(`${api.labelsDelete}${id}/`, {
+// 4) DELETE by id
+// api.js
+export async function deleteLabel(rawId, token) {
+  const id  = sanitizeId(rawId);
+  const url = `${BASE}/labels/${id}/`;
+  console.log("▶ deleteLabel URL:", url);
+
+  const res = await fetch(url, {
     method: "DELETE",
-    headers: {
-      "Authorization": `Bearer ${jwt}`,
-    },
+    headers: { Authorization: `Bearer ${token}` }
   });
+
+  // Treat 404 as “already deleted”
+  if (res.status === 404) {
+    console.warn(`deleteLabel: label ${id} not found on server (404)`);
+    return;
+  }
+
+  if (!res.ok) {
+    const err = await res.text().catch(() => null);
+    console.error("deleteLabel error:", err);
+    throw new Error(`Delete failed: ${res.status}`);
+  }
 }

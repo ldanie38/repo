@@ -1,11 +1,39 @@
+
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <link rel="stylesheet" href="https://use.typekit.net/yfd2poq.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="stylesheet" type="text/css" href="css/extension.css">
+
+  <!-- Typekit fonts -->
+  <link
+    rel="stylesheet"
+    href="https://use.typekit.net/yfd2poq.css"
+  />
+
+  <!-- Font Awesome CSS -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    integrity="sha512-…"
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+
+  <!-- extension’s styles -->
+  <link
+    rel="stylesheet"
+    href="css/extension.css"
+  />
+
+  <!-- Font Awesome JS (deferred so it won’t block parsing) -->
+  <script
+    defer
+    src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/js/all.min.js"
+    integrity="sha512-…"
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  ></script>
 
   <title>FACRM Popup</title>
 </head>
@@ -14,24 +42,6 @@
 
   <div id="loginSection">
     <section>
-       <!-- Forgot Password Dialog (UI-only) -->
-      <section id="forgotDialog" style="display:none;">
-        <h3>Reset Password</h3>
-
-        <form id="forgotForm">
-          <input id="forgotEmail" type="email" placeholder="Email" required />
-          <div style="display:flex; gap:8px;">
-            <button id="forgotSend" type="submit">Send</button>
-            <button id="forgotCancel" type="button">Cancel</button>
-          </div>
-        </form>
-
-        <div id="forgotSuccess" class="hidden">
-          <p>If this email exists, we’ve sent a password reset link.</p>
-          <button id="forgotOk" type="button">OK</button>
-        </div>
-      </section>
-
       <h3>Login</h3>
       <input id="username" type="text" placeholder="Username" />
       <input id="password" type="password" placeholder="Password" />
@@ -76,25 +86,6 @@
      
 
         <div class="feature">
-          <!-- Update Password Dialog (hidden by default) -->
-          <section id="changePasswordDialog" style="display:none;">
-            <h3>Update Password</h3>
-
-            <form id="changePasswordForm">
-              <input id="currentPasswordInput" type="password" placeholder="Current password" required />
-              <input id="newPasswordInput" type="password" placeholder="New password" required />
-              <div style="display:flex; gap:8px;">
-                <button id="changePasswordSubmit" type="submit">Change</button>
-                <button id="changePasswordCancel" type="button">Cancel</button>
-              </div>
-              <div id="changePasswordError" class="status error hidden">Invalid password change request</div>
-            </form>
-
-            <div id="changePasswordSuccess" class="hidden">
-              <p>Password updated successfully.</p>
-              <button id="changePasswordOk" type="button">OK</button>
-            </div>
-          </section>
           <p>
             <a href="#" id="updatePasswordLink">Update Password</a> &nbsp;||&nbsp;
             <a href="#" id="logoutLink">Log Out</a>
@@ -119,7 +110,7 @@
   </div>
 
   <script type="module" src="popup.js"></script>
-  <script type="module" src="labels.js"></script>
+  
   
 </body>
 </html>

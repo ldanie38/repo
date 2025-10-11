@@ -40,10 +40,16 @@ class LeadSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "owner_username", "created_at", "updated_at"]
         
+
+
 class LabelSerializer(serializers.ModelSerializer):
+    owner = serializers.PrimaryKeyRelatedField(read_only=True)
+
     class Meta:
         model = Label
-        fields = ["id", "name", "color"]
+        fields = ["id", "name", "color", "owner"]
+        
+
         
 
 

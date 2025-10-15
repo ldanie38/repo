@@ -11,6 +11,25 @@ from .serializers import (
     LabelSerializer
 )
 
+
+# src/crm/views.py
+import logging
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+logger = logging.getLogger("crm")
+
+class DashboardView(APIView):
+    def get(self, request):
+        logger.info("Dashboard requested by user %s", request.user.id)
+        try:
+            # …some external call
+            pass
+        except TimeoutError:
+            logger.error("Failed to connect to external API (timeout after 5s)")
+        return Response({"ok": True})
+
+
 # ——— USER VIEWSET ———
 class UserViewSet(viewsets.ModelViewSet):
     """

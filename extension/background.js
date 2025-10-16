@@ -54,6 +54,28 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     fetch(request.url, {
       headers: { Authorization: `Bearer ${request.token}` }
     })
+      .then((res) => {
+        if (!res.ok) throw new Error(`API request failed: ${res.status}`);
+        return res.json();
+      })
+      .then((data) => {
+        console.log("API response:", data);
+        sendResponse({ success: true, data });
+      })
+      .catch((err) => {
+        console.error("API error:", err);
+        sendResponse({ success: false, error: err.toString() });
+      });
+
+    return true;
+  }
+
+  // PROFILE URL HANDLER (from content.js)
+  if (request.action === "setProfileUrl") {
+    chrome.storage.local.set({ profileUrl: request.profileUrl }, () => {
+      console.log("[CRM] Profile URL saved:", request.profileUrl);
+      sendResponse({ success: true });
+    });
       .then(res => res.ok ? res.json() : Promise.reject(res.status))
       .then(data => sendResponse({ success: true, data }))
       .catch(err => sendResponse({ success: false, error: err }));

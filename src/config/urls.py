@@ -27,7 +27,7 @@ urlpatterns = [
     path("test/", test_error, name="test_error"),
     path("health/", health_check, name="health_check"),
 
-    # Extension landing page
+    # Extension landing
     path("extension/landing/", extension_landing, name="extension_landing"),
 
     # ----- Authentication -----

@@ -195,4 +195,33 @@ ALLOWED_HOSTS = ["*"]
 
 
 
+# === Password reset token lifetime (1 hour) ===
+PASSWORD_RESET_TIMEOUT = 60 * 60  # seconds
+
+# === Dev email backend (console by default; switchable via env) ===
+EMAIL_BACKEND = os.getenv("EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend")
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "no-reply@localhost")
+
+# If you want file-backed emails for easier clicking in dev:
+#   EMAIL_BACKEND=django.core.mail.backends.filebased.EmailBackend
+# and we’ll drop files in BASE_DIR/sent_emails
+if EMAIL_BACKEND.endswith("filebased.EmailBackend"):
+    EMAIL_FILE_PATH = BASE_DIR / "sent_emails"
+
+# === DRF throttling (adds to existing REST_FRAMEWORK) ===
+REST_FRAMEWORK.update({
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.ScopedRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "100/hour",
+        "password_forgot": "20/hour",  # <- our endpoint
+    },
+})
+REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"].update({
+    "password_reset": "20/hour",
+    "password_change": "10/hour",
+    "logout": "60/hour",
+})
 

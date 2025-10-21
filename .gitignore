@@ -34,3 +34,5 @@ pgdata/
 
 # --- Pipenv lock (if not versioning it) ---
 Pipfile.lock
+settings.json
+src/logs/

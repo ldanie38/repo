@@ -34,3 +34,7 @@ pgdata/
 
 # --- Pipenv lock (if not versioning it) ---
 Pipfile.lock
+settings.json
+src/logs/
+* 2.py
+* 2.sqlite3

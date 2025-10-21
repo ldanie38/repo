@@ -320,3 +320,61 @@ The Connector module runs background automation jobs (can be triggered by the UI
 Both the UI and background jobs use the same PostgreSQL database as the single source of truth.
 
 Database can be local via Docker Compose or cloud‑hosted — swap by updating .env
+
+
+## Log API Usage Guide
+
+**Setup Summary**
+Logs are stored in src/logs/{ENV}.log and rotated daily (7-day retention).
+
+The active environment is determined by APP_ENV (e.g., dev, test, prod).
+
+Log entries follow the format: "[2025-10-18T21:14:59Z] [dev] INFO: ErrorHandlerMiddleware loaded"
+
+## Viewing Logs via API
+## IN TERMINAL
+
+curl -s "http://localhost:8000/api/logs/?level=info" | jq .
+
+This sends a request to /api/logs/ asking for INFO-level logs and formats the JSON output using jq.
+
+**Example output:**
+
+{
+  "environment": "dev",
+  "entries": [
+    "[2025-10-18T21:14:59Z] [dev] INFO: Watching for file changes with StatReloader",
+    "[2025-10-18T21:14:59Z] [dev] INFO: ErrorHandlerMiddleware loaded"
+  ]
+}
+
+**What this confirms:**
+
+Logging system is active
+
+API endpoint is correctly filtering logs
+
+Dev server is watching for file changes
+
+Middleware is loading as expected
+
+## Error-Level Logs
+
+## In TERMINAL
+
+curl -s "http://localhost:8000/api/logs/?level=error" | jq .
+
+**Example response:**
+
+{
+  "environment": "dev",
+  "entries": []
+}
+ Is basically asking 
+ “Show me the last error logs from dev.” The API replied: 
+ “I checked logs/dev.log, but there aren’t any error entries right now.”
+
+
+## If you don’t have jq, you can use Python’s built-in JSON formatter:
+
+curl "http://localhost:8000/api/logs/?level=info" | python -m json.tool

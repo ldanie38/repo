@@ -19,11 +19,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -37,6 +35,45 @@ DEBUG = True
 ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 
+
+import logging
+from logging.handlers import TimedRotatingFileHandler
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+ENV      = os.getenv("APP_ENV", "dev")        # dev | test | prod
+
+# ensure the logs directory exists
+LOG_DIR = BASE_DIR / "logs"
+LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+LOG_FILE = LOG_DIR / f"{ENV}.log"
+
+# filter to inject environment into every record
+class EnvFilter(logging.Filter):
+    def filter(self, record):
+        record.environment = ENV
+        return True
+
+# formatter: [timestamp] [env] LEVEL: message
+LOG_FORMATTER = logging.Formatter(
+    "[%(asctime)s] [%(environment)s] %(levelname)s: %(message)s",
+    datefmt="%Y-%m-%dT%H:%M:%SZ",
+)
+
+# single rotating file handler, rolls at midnight, keeps 7 days
+handler = TimedRotatingFileHandler(
+    filename=str(LOG_FILE),
+    when="midnight",
+    backupCount=7
+)
+handler.setFormatter(LOG_FORMATTER)
+handler.addFilter(EnvFilter())
+
+# apply to root logger
+logging.basicConfig(level=logging.INFO, handlers=[handler])
+
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -47,8 +84,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    "crm",
-    'auth_app',
+    "src.crm",
+    'src.auth_app',
     "corsheaders",
 ]
 

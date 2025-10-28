@@ -414,8 +414,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-//logout
+// logout
+
 // popup.js
+
 document.addEventListener("DOMContentLoaded", () => {
   const byId          = id => document.getElementById(id);
   const loginSection  = byId("loginSection");
@@ -428,23 +430,59 @@ document.addEventListener("DOMContentLoaded", () => {
   logoutLink.addEventListener("click", async e => {
     e.preventDefault();
 
-    // Tell background to clear JWT + labels
-    const resp = await new Promise(resolve =>
-      chrome.runtime.sendMessage({ action: "logout" }, resolve)
-    );
+    try {
+      const token = localStorage.getItem("access_token");
 
-    if (resp.success) {
-      // 1) Hide labels UI
-      labelsSection.style.display = "none";
-      // 2) Show login UI
-      loginSection.style.display = "block";
-      // 3) Clear any status messages
-      statusEl.textContent = "";
-      // 4) Clear in-popup cache (if you have one)
-      //    e.g. labels = []; setLabels([]); render empty list
-    } else {
-      console.error("Logout failed:", resp);
+      // Call backend logout endpoint
+      const res = await fetch("http://localhost:8000/api/auth/logout/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { "Authorization": "Bearer " + token } : {})
+        }
+      });
+
+      if (!res.ok) {
+        console.error("Logout request failed:", res.status, res.statusText);
+        statusEl.textContent = "Logout failed on server.";
+        return;
+      }
+
+      let data = {};
+      try {
+        data = await res.json();
+      } catch {
+        console.warn("Logout response was not JSON");
+      }
+
+      console.log("Backend logout response:", data);
+      if (data.ok !== true) {
+        console.warn("Backend did not confirm logout, continuing cleanup anyway.");
+      }
+
+      // Clear tokens from localStorage
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+
+      // Tell background script to clear any cached state
+      const resp = await new Promise(resolve =>
+        chrome.runtime.sendMessage({ action: "logout" }, resolve)
+      );
+
+      if (resp && resp.success) {
+        // Reset UI
+        labelsSection.style.display = "none";
+        loginSection.style.display = "block";
+        statusEl.textContent = "";
+      } else {
+        console.error("Background logout failed:", resp);
+        statusEl.textContent = "Logout incomplete.";
+      }
+    } catch (err) {
+      console.error("Logout error:", err);
+      statusEl.textContent = "Logout error.";
     }
   });
 });
+
 

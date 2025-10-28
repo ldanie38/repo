@@ -11,9 +11,7 @@
   "background": {
     "service_worker": "background.js",
     "type": "module"
-},
-
-
+  },
   "permissions": [
     "storage",
     "scripting",
@@ -44,7 +42,15 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["labels.css", "extension.css", "icon48.png", "labels.html"],
+      "resources": [
+        "css/all.min.css",
+        "js/all.min.js",
+        "webfonts/*",
+        "labels.css",
+        "extension.css",
+        "icon48.png",
+        "labels.html"
+      ],
       "matches": ["*://*.facebook.com/*", "<all_urls>"]
     }
   ]

@@ -414,37 +414,40 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-//logout
-// popup.js
-document.addEventListener("DOMContentLoaded", () => {
-  const byId          = id => document.getElementById(id);
-  const loginSection  = byId("loginSection");
-  const labelsSection = byId("labelsSection");
-  const statusEl      = byId("status");
-  const logoutLink    = byId("logoutLink");
+// logout
+document.getElementById("logoutLink").addEventListener("click", async (e) => {
+  e.preventDefault();
 
-  if (!logoutLink) return;
-
-  logoutLink.addEventListener("click", async e => {
-    e.preventDefault();
-
-    // Tell background to clear JWT + labels
-    const resp = await new Promise(resolve =>
-      chrome.runtime.sendMessage({ action: "logout" }, resolve)
-    );
-
-    if (resp.success) {
-      // 1) Hide labels UI
-      labelsSection.style.display = "none";
-      // 2) Show login UI
-      loginSection.style.display = "block";
-      // 3) Clear any status messages
-      statusEl.textContent = "";
-      // 4) Clear in-popup cache (if you have one)
-      //    e.g. labels = []; setLabels([]); render empty list
-    } else {
-      console.error("Logout failed:", resp);
-    }
+  // ask background to clear shared storage (access_token etc.)
+  const resp = await new Promise(resolve => {
+    chrome.runtime.sendMessage({ action: "logout" }, (r) => {
+      if (chrome.runtime.lastError) {
+        console.error("[POPUP] sendMessage error:", chrome.runtime.lastError);
+        resolve({ success: false, error: chrome.runtime.lastError.message });
+      } else {
+        resolve(r || { success: false });
+      }
+    });
   });
+
+  if (!resp.success) {
+    console.error("[POPUP] Background logout failed:", resp);
+    document.getElementById("status").textContent = "Logout failed.";
+    return;
+  }
+
+  // Clear any popup-local storage/state (defensive)
+  try {
+    await chrome.storage.local.remove(["access_token", "refresh_token", "labels"]);
+    console.log("[POPUP] Cleared tokens from storage (popup side)");
+  } catch (err) {
+    console.warn("[POPUP] local clear error:", err);
+  }
+
+  // Reset UI
+  document.getElementById("labelsSection").style.display = "none";
+  document.getElementById("loginSection").style.display = "block";
+  document.getElementById("status").textContent = "Logged out";
 });
+
 

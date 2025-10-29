@@ -414,12 +414,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// logout
+// popup.js - logout (drop-in replacement)
 document.getElementById("logoutLink").addEventListener("click", async (e) => {
   e.preventDefault();
 
+  console.log("[POPUP] logout clicked");
+
   // ask background to clear shared storage (access_token etc.)
-  const resp = await new Promise(resolve => {
+  const bgResp = await new Promise(resolve => {
     chrome.runtime.sendMessage({ action: "logout" }, (r) => {
       if (chrome.runtime.lastError) {
         console.error("[POPUP] sendMessage error:", chrome.runtime.lastError);
@@ -430,24 +432,32 @@ document.getElementById("logoutLink").addEventListener("click", async (e) => {
     });
   });
 
-  if (!resp.success) {
-    console.error("[POPUP] Background logout failed:", resp);
+  console.log("[POPUP] background response:", bgResp);
+  if (!bgResp.success) {
+    console.error("[POPUP] Background logout failed:", bgResp);
     document.getElementById("status").textContent = "Logout failed.";
     return;
   }
 
-  // Clear any popup-local storage/state (defensive)
-  try {
-    await chrome.storage.local.remove(["access_token", "refresh_token", "labels"]);
+  // promisify storage removal and wait for it to complete
+  const storageRemove = (keys) => new Promise(resolve =>
+    chrome.storage.local.remove(keys, () => resolve(chrome.runtime.lastError || null))
+  );
+
+  const removeErr = await storageRemove(["access_token", "refresh_token", "labels", "jwt"]);
+  if (removeErr) {
+    console.warn("[POPUP] storage remove error:", removeErr);
+  } else {
     console.log("[POPUP] Cleared tokens from storage (popup side)");
-  } catch (err) {
-    console.warn("[POPUP] local clear error:", err);
   }
 
   // Reset UI
-  document.getElementById("labelsSection").style.display = "none";
-  document.getElementById("loginSection").style.display = "block";
-  document.getElementById("status").textContent = "Logged out";
+  const labelsSection = document.getElementById("labelsSection");
+  const loginSection = document.getElementById("loginSection");
+  if (labelsSection) labelsSection.style.display = "none";
+  if (loginSection) loginSection.style.display = "block";
+  const status = document.getElementById("status");
+  if (status) status.textContent = "Logged out";
 });
 
 

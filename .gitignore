@@ -38,3 +38,4 @@ settings.json
 src/logs/
 * 2.py
 * 2.sqlite3
+extension/storage-util.js

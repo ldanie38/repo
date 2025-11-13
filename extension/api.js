@@ -1,5 +1,3 @@
-
-
 const BASE = "http://localhost:8000/api";
 function rootFromBase(base) {
   return base.replace(/\/api\/?$/, "");
@@ -9,11 +7,35 @@ const ROOT = rootFromBase(BASE);
 const TOKEN_ENDPOINT = `${ROOT}/api/token/`;
 const REFRESH_ENDPOINT = `${ROOT}/api/token/refresh/`;
 
-/* Storage abstraction (swap with chrome.storage.local if desired) */
+/* storage helper: prefer chrome.storage.local, fall back to localStorage.
+   JSON-serializes values for localStorage compatibility. */
 const storage = {
-  async get(key) { return Promise.resolve(localStorage.getItem(key)); },
-  async set(key, val) { localStorage.setItem(key, val); return Promise.resolve(); },
-  async remove(key) { localStorage.removeItem(key); return Promise.resolve(); },
+  async get(key) {
+    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+      return new Promise(resolve => {
+        chrome.storage.local.get(key, res => {
+          resolve(res && typeof res === 'object' ? (res[key] ?? null) : null);
+        });
+      });
+    }
+    const raw = localStorage.getItem(key);
+    if (raw === null) return null;
+    try { return JSON.parse(raw); } catch { return raw; }
+  },
+  async set(key, val) {
+    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+      return new Promise(resolve => chrome.storage.local.set({ [key]: val }, () => resolve()));
+    }
+    try { localStorage.setItem(key, JSON.stringify(val)); } catch { localStorage.setItem(key, String(val)); }
+    return Promise.resolve();
+  },
+  async remove(key) {
+    if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+      return new Promise(resolve => chrome.storage.local.remove(key, () => resolve()));
+    }
+    localStorage.removeItem(key);
+    return Promise.resolve();
+  }
 };
 
 /* Utility: sanitize id strings like ":1" -> "1" */
@@ -23,12 +45,42 @@ function sanitizeId(rawId) {
 }
 
 /* ---------------------------
+   Token normalization helpers
+   --------------------------- */
+
+/* Read stored tokens with compatibility for:
+   - explicit accessToken / refreshToken keys
+   - legacy 'jwt' string (treated as access)
+   - legacy 'jwt' object { access, refresh } or similar shapes
+*/
+async function getStoredTokens() {
+  // explicit keys take precedence
+  const accessToken = await storage.get('accessToken');
+  const refreshToken = await storage.get('refreshToken');
+  if (accessToken || refreshToken) return { access: accessToken ?? null, refresh: refreshToken ?? null };
+
+  // fallback to legacy jwt key
+  const jwt = await storage.get('jwt');
+  if (!jwt) return { access: null, refresh: null };
+
+  if (typeof jwt === 'string') {
+    return { access: jwt, refresh: null };
+  }
+
+  // object shapes: try common property names
+  return {
+    access: jwt.access ?? jwt.token ?? jwt.accessToken ?? null,
+    refresh: jwt.refresh ?? jwt.refreshToken ?? null
+  };
+}
+
+/* ---------------------------
    Auth helpers (JWT flow)
    --------------------------- */
 
 /**
  * Login to obtain access & refresh tokens.
- * Stores 'accessToken' and 'refreshToken' in storage.
+ * Stores explicit keys and legacy jwt object for compatibility.
  */
 export async function login(username, password) {
   const res = await fetch(TOKEN_ENDPOINT, {
@@ -41,59 +93,93 @@ export async function login(username, password) {
     throw new Error(err.detail || `Login failed: ${res.status}`);
   }
   const data = await res.json();
-  await storage.set('accessToken', data.access);
-  await storage.set('refreshToken', data.refresh);
+
+  // store explicit keys and a legacy jwt object for pages that read 'jwt'
+  const jwtObj = { access: data.access ?? data.token ?? null, refresh: data.refresh ?? null };
+  if (jwtObj.access) await storage.set('accessToken', jwtObj.access);
+  if (jwtObj.refresh) await storage.set('refreshToken', jwtObj.refresh);
+  await storage.set('jwt', jwtObj);
+
   return data;
 }
 
 /**
  * Refresh access token using stored refresh token.
- * Returns new access token.
+ * Returns new access token and stores it.
  */
 export async function refreshToken() {
-  const refresh = await storage.get('refreshToken');
-  if (!refresh) throw new Error('No refresh token available');
+  const { refresh } = await getStoredTokens();
+  if (!refresh) {
+    // clear stale tokens
+    await storage.remove('jwt');
+    await storage.remove('accessToken');
+    await storage.remove('refreshToken');
+    throw new Error('No refresh token available');
+  }
+
   const res = await fetch(REFRESH_ENDPOINT, {
     method: 'POST',
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ refresh })
   });
+
   if (!res.ok) {
-    // clear tokens on failed refresh
+    // clear stored tokens on failure to force re-login
+    await storage.remove('jwt');
     await storage.remove('accessToken');
     await storage.remove('refreshToken');
     const err = await res.json().catch(() => null);
     throw new Error(err?.detail || `Refresh failed: ${res.status}`);
   }
+
   const data = await res.json();
-  await storage.set('accessToken', data.access);
-  return data.access;
+  const newAccess = data.access ?? data.token ?? null;
+  const newRefresh = data.refresh ?? null;
+
+  const jwtObj = { access: newAccess, refresh: newRefresh };
+  if (jwtObj.access) await storage.set('accessToken', jwtObj.access);
+  if (jwtObj.refresh) await storage.set('refreshToken', jwtObj.refresh);
+  await storage.set('jwt', jwtObj);
+
+  return jwtObj.access;
 }
 
 /**
  * Authenticated fetch wrapper.
  * - If token param provided, uses it.
- * - Else uses stored accessToken and will attempt refresh on 401.
+ * - Else uses stored accessToken/jwt and will attempt refresh on 401.
+ * Throws Error('auth_required') when refresh cannot recover.
  */
 export async function authFetch(url, options = {}, token = null) {
-  let access = token || await storage.get('accessToken');
-  const headers = {
-    ...(options.headers || {}),
-    'Authorization': `Bearer ${access}`,
-    'Content-Type': headersContentType(options.headers)
-  };
+  const tokens = await getStoredTokens();
+  let access = token || tokens.access;
 
-  let res = await fetch(url, { ...options, headers });
+  const buildHeaders = (extra = {}) => ({ 'Content-Type': 'application/json', ...(extra || {}) });
+
+  const reqHeaders = { ...(options.headers || {}) };
+  if (access) reqHeaders['Authorization'] = `Bearer ${access}`;
+
+  let res;
+  try {
+    res = await fetch(url, { ...options, headers: buildHeaders(reqHeaders) });
+  } catch (err) {
+    // Network or other low-level failure
+    throw err;
+  }
+
   if (res.status === 401 && !token) {
-    // try refresh flow once
+    // attempt refresh once
     try {
-      access = await refreshToken();
-      const retryHeaders = { ...(options.headers || {}), 'Authorization': `Bearer ${access}`, 'Content-Type': headersContentType(options.headers) };
-      res = await fetch(url, { ...options, headers: retryHeaders });
+      const newAccess = await refreshToken();
+      const retryHeaders = { ...(options.headers || {}) };
+      if (newAccess) retryHeaders['Authorization'] = `Bearer ${newAccess}`;
+      res = await fetch(url, { ...options, headers: buildHeaders(retryHeaders) });
     } catch (err) {
-      throw err;
+      // bubble up a signal the UI can detect and prompt login
+      throw new Error('auth_required');
     }
   }
+
   return res;
 }
 
@@ -107,22 +193,23 @@ function headersContentType(providedHeaders = {}) {
 
 /* ---------------------------
    Label endpoints
-   (existing helpers: pullLabels, pushLabel, updateLabel, deleteLabel)
    --------------------------- */
 
 /**
  * GET all labels
- * Optionally pass token; if omitted uses stored token
  */
 export async function pullLabels(token = null) {
   const res = await authFetch(`${BASE}/labels/`, { method: "GET" }, token);
-  if (!res.ok) throw new Error(`Pull labels failed: ${res.status}`);
+  if (!res.ok) {
+    // surface auth_required specially if thrown earlier
+    if (res.status === 401) throw new Error('auth_required');
+    throw new Error(`Pull labels failed: ${res.status}`);
+  }
   return res.json();
 }
 
 /**
  * POST new label
- * label: { name, color? }
  */
 export async function pushLabel(label, token = null) {
   const res = await authFetch(`${BASE}/labels/`, {
@@ -140,7 +227,6 @@ export async function pushLabel(label, token = null) {
 
 /**
  * PUT update label
- * rawId may be like ":1" or "1"
  */
 export async function updateLabel(rawId, data, token = null) {
   const id = sanitizeId(rawId);
@@ -170,7 +256,6 @@ export async function deleteLabel(rawId, token = null) {
 
   const res = await authFetch(url, { method: "DELETE" }, token);
 
-  // Treat 404 as “already deleted”
   if (res.status === 404) {
     console.warn(`deleteLabel: label ${id} not found on server (404)`);
     return;
@@ -187,28 +272,24 @@ export async function deleteLabel(rawId, token = null) {
    Template endpoints (CRUD)
    --------------------------- */
 
-/**
- * GET all templates
- */
 export async function fetchTemplates(token = null) {
   const res = await authFetch(`${BASE}/templates/`, { method: "GET" }, token);
-  if (!res.ok) throw new Error(`Fetch templates failed: ${res.status}`);
+  if (!res.ok) {
+    if (res.status === 401) throw new Error('auth_required');
+    throw new Error(`Fetch templates failed: ${res.status}`);
+  }
   return res.json();
 }
 
-/**
- * GET single template by id
- */
 export async function fetchTemplate(id, token = null) {
   const res = await authFetch(`${BASE}/templates/${id}/`, { method: "GET" }, token);
-  if (!res.ok) throw new Error(`Fetch template failed: ${res.status}`);
+  if (!res.ok) {
+    if (res.status === 401) throw new Error('auth_required');
+    throw new Error(`Fetch template failed: ${res.status}`);
+  }
   return res.json();
 }
 
-/**
- * POST create template
- * payload: { name, content, label }
- */
 export async function createTemplate(payload, token = null) {
   const res = await authFetch(`${BASE}/templates/`, {
     method: 'POST',
@@ -223,9 +304,6 @@ export async function createTemplate(payload, token = null) {
   return res.json();
 }
 
-/**
- * PATCH update template
- */
 export async function updateTemplate(id, payload, token = null) {
   const res = await authFetch(`${BASE}/templates/${id}/`, {
     method: 'PATCH',
@@ -240,9 +318,6 @@ export async function updateTemplate(id, payload, token = null) {
   return res.json();
 }
 
-/**
- * DELETE template
- */
 export async function deleteTemplate(id, token = null) {
   const res = await authFetch(`${BASE}/templates/${id}/`, { method: 'DELETE' }, token);
   if (!res.ok) {

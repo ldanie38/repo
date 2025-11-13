@@ -97,3 +97,15 @@ class Label(models.Model):
         return f"{self.name} ({self.color})"
 
 
+class Template(models.Model):
+    name = models.CharField(max_length=120)
+    content = models.TextField()
+    label = models.ForeignKey('Label', on_delete=models.PROTECT, related_name='templates')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['name', 'label'], name='uniq_template_name_per_label')
+        ]
+

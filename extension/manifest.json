@@ -11,14 +11,13 @@
   "background": {
     "service_worker": "background.js",
     "type": "module"
-},
-
-
+  },
   "permissions": [
     "storage",
     "scripting",
     "tabs",
-    "alarms"
+    "alarms",
+    "activeTab"
   ],
   "host_permissions": [
     "http://localhost:8000/*",
@@ -35,6 +34,7 @@
       "128": "icon128.png"
     }
   },
+  "options_page": "templates.html",
   "content_scripts": [
     {
       "matches": ["*://*.facebook.com/*"],
@@ -44,7 +44,17 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["labels.css", "extension.css", "icon48.png", "labels.html"],
+      "resources": [
+        "labels.css",
+        "extension.css",
+        "css/extension.css",
+        "labels.html",
+        "templates.html",
+        "popup.html",
+        "icon48.png",
+        "icon128.png",
+        "icon16.png"
+      ],
       "matches": ["*://*.facebook.com/*", "<all_urls>"]
     }
   ]

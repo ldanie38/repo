@@ -90,10 +90,12 @@ INSTALLED_APPS = [
 ]
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-       
+    'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
 }
 
 MIDDLEWARE = [
@@ -111,12 +113,14 @@ MIDDLEWARE = [
 
 
 
-CORS_ALLOW_ALL_ORIGINS = True  # is ok for local dev only
-## in production u should not allow above
-##CORS_ALLOWED_ORIGINS = [
-    #"https://yourextensionid.chromiumapp.org",
-    #"https://yourfrontend.com",
-#]
+CORS_ALLOWED_ORIGINS = [
+    "chrome-extension://mbmfakmonafdjeimdafmikibmlndgpci",
+    "http://localhost:8000",
+]
+# Dev toggle (optional, use with care)
+# CORS_ALLOW_ALL_ORIGINS = True
+
+# CSRF: not needed for token-based API if you avoid session auth
 
 ROOT_URLCONF = 'config.urls'
 

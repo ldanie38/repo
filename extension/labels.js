@@ -238,3 +238,31 @@ document.addEventListener("DOMContentLoaded", () => {
     setLabels(labels);
   });
 });
+
+
+// open Templates
+(function wireTemplatesLink() {
+  const anchor = document.getElementById('open-templates-link');
+  const btn = document.getElementById('open-templates-btn');
+
+  async function openTemplates() {
+    if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.openOptionsPage) {
+      try {
+        chrome.runtime.openOptionsPage();
+        return;
+      } catch (err) {
+        // fall back below
+      }
+    }
+    const url = chrome?.runtime?.getURL ? chrome.runtime.getURL('templates.html') : 'templates.html';
+    window.open(url, '_blank', 'noopener');
+  }
+
+  if (anchor) {
+    anchor.addEventListener('click', (e) => {
+      e.preventDefault();
+      openTemplates();
+    });
+  }
+  if (btn) btn.addEventListener('click', openTemplates);
+})();

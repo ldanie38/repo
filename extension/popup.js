@@ -414,50 +414,82 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// popup.js - logout (drop-in replacement)
-document.getElementById("logoutLink").addEventListener("click", async (e) => {
-  e.preventDefault();
+// - logout 
 
-  console.log("[POPUP] logout clicked");
 
-  // ask background to clear shared storage (access_token etc.)
-  const bgResp = await new Promise(resolve => {
-    chrome.runtime.sendMessage({ action: "logout" }, (r) => {
-      if (chrome.runtime.lastError) {
-        console.error("[POPUP] sendMessage error:", chrome.runtime.lastError);
-        resolve({ success: false, error: chrome.runtime.lastError.message });
-      } else {
-        resolve(r || { success: false });
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Safe guard: only attach if element exists
+  const logoutEl = document.getElementById("logoutLink");
+  if (logoutEl) {
+    logoutEl.addEventListener("click", async (e) => {
+      e.preventDefault();
+      console.log("[POPUP] logout clicked");
+
+      // Ask background to clear shared storage (access_token etc.)
+      const bgResp = await new Promise((resolve) => {
+        chrome.runtime.sendMessage({ action: "logout" }, (r) => {
+          if (chrome.runtime.lastError) {
+            console.error("[POPUP] sendMessage error:", chrome.runtime.lastError);
+            resolve({ success: false, error: chrome.runtime.lastError.message });
+          } else {
+            resolve(r || { success: false });
+          }
+        });
+      });
+
+      console.log("[POPUP] background response:", bgResp);
+      if (!bgResp.success) {
+        console.error("[POPUP] Background logout failed:", bgResp);
+        const status = document.getElementById("status");
+        if (status) status.textContent = "Logout failed.";
+        return;
       }
+
+   
+      try {
+        await new Promise((resolve) =>
+          chrome.storage.local.remove(
+            ["access_token", "refresh_token", "labels", "jwt"],
+            () => resolve(chrome.runtime.lastError || null)
+          )
+        );
+        console.log("[POPUP] Cleared tokens from popup storage (optional)");
+      } catch (err) {
+        console.warn("[POPUP] storage remove error (optional):", err);
+      }
+
+      // Close the popup so the user only sees the full-app login tab opened by background
+      window.close();
     });
-  });
-
-  console.log("[POPUP] background response:", bgResp);
-  if (!bgResp.success) {
-    console.error("[POPUP] Background logout failed:", bgResp);
-    document.getElementById("status").textContent = "Logout failed.";
-    return;
-  }
-
-  // promisify storage removal and wait for it to complete
-  const storageRemove = (keys) => new Promise(resolve =>
-    chrome.storage.local.remove(keys, () => resolve(chrome.runtime.lastError || null))
-  );
-
-  const removeErr = await storageRemove(["access_token", "refresh_token", "labels", "jwt"]);
-  if (removeErr) {
-    console.warn("[POPUP] storage remove error:", removeErr);
   } else {
-    console.log("[POPUP] Cleared tokens from storage (popup side)");
+    console.warn("[POPUP] logoutLink element not found");
   }
 
-  // Reset UI
-  const labelsSection = document.getElementById("labelsSection");
-  const loginSection = document.getElementById("loginSection");
-  if (labelsSection) labelsSection.style.display = "none";
-  if (loginSection) loginSection.style.display = "block";
-  const status = document.getElementById("status");
-  if (status) status.textContent = "Logged out";
+  // --- other popup initialization can go here ---
+  // e.g., attach listeners for label actions, render saved labels, set up UI, etc.
 });
 
 
+
+// open templates
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('open-templates-from-popup');
+  if (!btn) return;
+
+  btn.addEventListener('click', async () => {
+    // Preferred: open the extension options page (native)
+    if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.openOptionsPage) {
+      try {
+        chrome.runtime.openOptionsPage();
+        return;
+      } catch (err) {
+        // fall through to fallback
+      }
+    }
+
+    // Fallback: open templates.html in a new tab (works in dev)
+    const url = chrome?.runtime?.getURL ? chrome.runtime.getURL('templates.html') : 'templates.html';
+    window.open(url, '_blank', 'noopener');
+  });
+});

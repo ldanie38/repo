@@ -7,7 +7,9 @@ from .views import (
     LeadViewSet,
     CampaignViewSet,
     TagViewSet,
-    LabelViewSet
+    LabelViewSet,
+    TemplateViewSet
+  
 )
 
 router = DefaultRouter()
@@ -16,6 +18,8 @@ router.register("leads",     LeadViewSet,     basename="lead")
 router.register("campaigns", CampaignViewSet, basename="campaign")
 router.register("tags",      TagViewSet,      basename="tag")
 router.register("labels",    LabelViewSet,    basename="label")
+router.register(r'templates', TemplateViewSet, basename='template')
+
 
 urlpatterns = [
     # /api/users/, /api/labels/, etc.

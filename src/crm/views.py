@@ -2,13 +2,14 @@
 
 from django.contrib.auth import get_user_model
 from rest_framework import viewsets, permissions
-from .models import Lead, Campaign, Tag, Label
+from .models import Lead, Campaign, Tag, Label, Template
 from .serializers import (
     UserSerializer,
     LeadSerializer,
     CampaignSerializer,
     TagSerializer,
-    LabelSerializer
+    LabelSerializer,
+    TemplateSerializer
 )
 
 
@@ -70,4 +71,10 @@ class LabelViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         # stamp the new Label with the current user
         serializer.save(owner=self.request.user)
+        
+ # ——— Template VIEWSET ———       
+class TemplateViewSet(viewsets.ModelViewSet):
+    queryset = Template.objects.select_related('label').order_by('-updated_at')
+    serializer_class = TemplateSerializer
+    permission_classes = [permissions.IsAuthenticated]
 

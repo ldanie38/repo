@@ -1,20 +1,34 @@
-  // background.js
+
 // Single onMessage listener, async-safe with return true where needed.
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   console.log("[BG] received message:", request);
 
-  // LOGOUT: clear tokens & labels, then respond
+  // LOGOUT: clear tokens & labels, then open full-app login and respond
   if (request.action === "logout") {
+    // clear extension state then open the full-app login page
     chrome.storage.local.remove(["jwt", "labels"], () => {
       const err = chrome.runtime.lastError;
       if (err) {
         console.error("[BG] logout clear error:", err);
         sendResponse({ success: false, error: err.message });
-      } else {
-        console.log("[BG] cleared jwt & labels");
-        sendResponse({ success: true });
+        return;
       }
+
+      console.log("[BG] cleared jwt & labels");
+
+      // Open a valid app page after logout. Change this URL if you'd rather
+      // open the site root or a dedicated login page you create on the server.
+      const loginUrl = "http://localhost:8000/extension/landing/";
+      chrome.tabs.create({ url: loginUrl }, () => {
+        const tabErr = chrome.runtime.lastError;
+        if (tabErr) {
+          console.error("[BG] failed to open login tab:", tabErr);
+          sendResponse({ success: true, warning: "failed_to_open_tab" });
+        } else {
+          sendResponse({ success: true });
+        }
+      });
     });
     return true; // keep channel open for async response
   }

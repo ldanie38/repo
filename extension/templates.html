@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Global Templates</title>
+  <link rel="stylesheet" href="css/templates.css">
+</head>
+<body>
+  <nav class="crm-nav"><h1>Global Templates</h1></nav>
+
+  <main id="templates-app">
+    <section class="panel">
+      <h2>Create / Edit Template</h2>
+      <form id="template-form">
+        <input type="hidden" id="template-id"/>
+        <label>
+          Name
+          <input id="template-name" type="text" required maxlength="120"/>
+        </label>
+        <label>
+          Label
+          <select id="template-label" required></select>
+        </label>
+        <label>
+          Message
+          <textarea id="template-content" rows="6" required></textarea>
+        </label>
+        <div class="actions">
+          <button type="submit" id="save-btn">Save</button>
+          <button type="button" id="reset-btn">Reset</button>
+        </div>
+      </form>
+      <div id="flash" class="flash hidden"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Saved Templates</h2>
+      <ul id="templates-list" class="card-list"></ul>
+    </section>
+  </main>
+
+  <script src="api.js"></script>
+  <script src="templates.js"></script>
+</body>
+</html>

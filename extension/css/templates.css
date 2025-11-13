@@ -1,16 +1,99 @@
-.flash {
-    margin-top: 12px;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-size: 14px;
-  }
-  .flash.success { background: #e6ffed; color: #03543f; border: 1px solid #84e1bc; }
-  .flash.error   { background: #fde8e8; color: #9b1c1c; border: 1px solid #f5aaaa; }
-  .flash.hidden  { display: none; }
+
+* {
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body {
+  padding: 15px;
+  background-color: #F5F6F7;
+  color: #1C1C1C;
+  font-family: "indivisible", sans-serif;
+ 
   
-  .card-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .card { border: 1px solid #e4e7eb; border-radius: 8px; padding: 12px; background: #fff; }
-  .card-head { display: flex; justify-content: space-between; align-items: baseline; }
-  .card-title { font-weight: 600; }
-  .card-label { font-size: 12px; color: #6b7280; background: #f1f5f9; padding: 2px 6px; border-radius: 999px; }
-  
+}
+
+section {
+  margin-bottom: 18px;
+  padding: 10px;
+  background-color: #FFFFFF;
+  border: 1px solid #E0E0E0;
+  border-radius: 8px;
+}
+
+.panel{
+  gap: 1rem;        
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.5rem;     
+  box-sizing: border-box;
+  flex: 1;
+  width: 800px;           
+  max-width: 900px;      
+  margin: 0 auto;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+}
+
+
+template-form{
+
+box-sizing: border-box;
+gap: 30px;
+}
+
+.saved{
+  margin-top: 50px;
+}
+
+ label {
+  display: block;
+  display: flex;
+  flex-direction: column;
+  padding:5px;
+  margin:auto;
+}
+
+
+input {
+  display: block;
+  margin: 6px 0;
+  width: 90%;
+  padding: 8px;
+  border: 1px solid #D0D0D0;
+  border-radius: 6px;
+  background-color: #FFFFFF;
+  color: #1C1C1C;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus {
+  border-color: #2979FF;
+  box-shadow: 0 0 0 2px rgba(41, 121, 255, 0.15);
+}
+
+.label input{
+  width: 50%;
+}
+
+button {
+  margin-top: 6px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  background-color: #4a8fe7;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+  font-family: "indivisible", sans-serif;
+  font-weight: 300;
+}
+
+button:hover {
+  background-color: #1565C0;
+  transform: translateY(-1px);
+}

@@ -14,16 +14,16 @@
       <form id="template-form">
         <input type="hidden" id="template-id"/>
         <label>
-          Name
+          <h3>Enter Name</h3>
           <input id="template-name" type="text" required maxlength="120"/>
         </label>
         <label>
-          Label
+          <h3>Select Label</h3>
           <select id="template-label" required></select>
         </label>
         <label>
-          Message
-          <textarea id="template-content" rows="6" required></textarea>
+          <h3>Enter Message</h3>
+          <textarea id="template-content" rows="4" required></textarea>
         </label>
         <div class="actions">
           <button type="submit" id="save-btn">Save</button>
@@ -33,20 +33,12 @@
       <div id="flash" class="flash hidden"></div>
     </section>
 
-    <section class="panel">
+    <section class="saved">
       <h2>Saved Templates</h2>
       <ul id="templates-list" class="card-list"></ul>
     </section>
-    <div class="heading-row">
-        <h2 class="heading-inline">
-          <a id="open-templates-edit" class="heading-link" href="templates.html">Edit</a>
-        </h2>
-      
-        <h2 class="heading-inline">
-          <a id="scroll-to-update" class="heading-link" href="#template-form">Update</a>
-        </h2>
-      </div>
-      
+
+
   </main>
 
   <script type="module" src="api.js"></script>

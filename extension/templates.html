@@ -4,6 +4,7 @@
   <meta charset="UTF-8"/>
   <title>Global Templates</title>
   <link rel="stylesheet" href="css/templates.css">
+  <link rel="stylesheet" href="https://use.typekit.net/yfd2poq.css">
 </head>
 <body>
   <nav class="crm-nav"><h1>Global Templates</h1></nav>
@@ -13,18 +14,24 @@
       
       <form id="template-form">
         <input type="hidden" id="template-id"/>
-        <label>
+        <label class="select-field">
           <h3>Enter Name</h3>
           <input id="template-name" type="text" required maxlength="120"/>
         </label>
-        <label>
+        <label class="select-field">
           <h3>Select Label</h3>
           <select id="template-label" required></select>
         </label>
         <label>
-          <h3>Enter Message</h3>
-          <textarea id="template-content" rows="4" required></textarea>
+       
+          <div class="textarea-wrap">
+            <textarea id="template-content" rows="4" placeholder="Write your message.."></textarea>
+          </div>
+          
+         
         </label>
+
+        
         <div class="actions">
           <button type="submit" id="save-btn">Save</button>
           <button type="button" id="reset-btn">Reset</button>
@@ -37,9 +44,13 @@
       <h2>Saved Templates</h2>
       <ul id="templates-list" class="card-list"></ul>
     </section>
+ 
+    
 
 
   </main>
+
+
 
   <script type="module" src="api.js"></script>
   <script type="module" src="templates.js"></script>

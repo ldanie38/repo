@@ -1,7 +1,6 @@
-// background.js (MV3 service worker)
-// Clears tokens and opens the extension UI as a popup window (preferred).
-// Falls back to opening the web app login/landing page if popup window creation fails.
-// Returns sendResponse({ success: true, opened: "popup_window" | "web_login_fallback" }) on success.
+// background.js (Manifest V3 service worker)
+// Handles logout, openLabels, setToken, testApi, setProfileUrl, ping.
+// Preferred UX: open packaged extension pages as popup windows; fallback to opening web pages in tabs.
 
 const WEB_LOGIN_URL = "http://localhost:8000/extension/landing/"; // change if needed
 const POPUP_PATH = "popup.html";
@@ -20,12 +19,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return;
   }
 
+  // --- LOGOUT ---
   if (request.action === "logout") {
     (async () => {
       try {
         safeLog("[BG] starting logout flow");
 
-        // 1) Clear stored keys (tokens, labels, etc.)
         chrome.storage.local.remove(["jwt", "access_token", "refresh_token", "labels"], () => {
           if (chrome.runtime.lastError) {
             console.error("[BG] storage.remove error:", chrome.runtime.lastError);
@@ -34,13 +33,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           }
           safeLog("[BG] cleared storage keys");
 
-          // 2) Preferred UX: open the packaged popup as a small window
+          // Try opening packaged popup as a small window
           const popupUrl = chrome.runtime.getURL(POPUP_PATH);
           chrome.windows.create(
             { url: popupUrl, type: "popup", width: POPUP_WIDTH, height: POPUP_HEIGHT, focused: true },
             (win) => {
               if (chrome.runtime.lastError || !win) {
                 console.warn("[BG] windows.create(popup) failed:", chrome.runtime.lastError);
+
                 // Fallback: open the web login/landing page in a tab
                 chrome.tabs.create({ url: WEB_LOGIN_URL }, (tab2) => {
                   if (chrome.runtime.lastError || !tab2) {
@@ -51,6 +51,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                     sendResponse({ success: true, opened: "web_login_fallback" });
                   }
                 });
+
                 return;
               }
 
@@ -68,7 +69,46 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true; // keep sendResponse valid asynchronously
   }
 
-  // Save token action
+  // --- OPEN LABELS (Go back home) ---
+  if (request.action === "openLabels") {
+    (async () => {
+      try {
+        const labelsUrl = chrome.runtime.getURL("labels.html");
+
+        chrome.windows.create(
+          { url: labelsUrl, type: "popup", width: POPUP_WIDTH, height: POPUP_HEIGHT, focused: true },
+          (win) => {
+            if (chrome.runtime.lastError || !win) {
+              console.warn("[BG] windows.create(labels) failed:", chrome.runtime.lastError);
+
+              // Fallback: open as a tab
+              chrome.tabs.create({ url: labelsUrl }, (tab) => {
+                if (chrome.runtime.lastError || !tab) {
+                  console.error("[BG] tabs.create(labels) failed:", chrome.runtime.lastError);
+                  sendResponse({ success: false, error: chrome.runtime.lastError ? chrome.runtime.lastError.message : "failed_to_open_labels" });
+                } else {
+                  safeLog("[BG] opened labels as tab id", tab.id);
+                  sendResponse({ success: true, opened: "tab" });
+                }
+              });
+
+              return;
+            }
+
+            safeLog("[BG] opened labels popup window id", win.id);
+            sendResponse({ success: true, opened: "popup_window", windowId: win.id });
+          }
+        );
+      } catch (err) {
+        console.error("[BG] unexpected openLabels error:", err);
+        sendResponse({ success: false, error: String(err) });
+      }
+    })();
+
+    return true;
+  }
+
+  // --- setToken ---
   if (request.action === "setToken") {
     chrome.storage.local.set({ jwt: request.token || null }, () => {
       if (chrome.runtime.lastError) {
@@ -82,13 +122,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true;
   }
 
-  // Ping (sync)
+  // --- ping (sync) ---
   if (request.action === "ping") {
     sendResponse({ success: true, fromBackground: true });
     return;
   }
 
-  // testApi (async fetch)
+  // --- testApi ---
   if (request.action === "testApi") {
     fetch(request.url, {
       headers: { Authorization: `Bearer ${request.token}` }
@@ -106,7 +146,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true;
   }
 
-  // setProfileUrl action
+  // --- setProfileUrl ---
   if (request.action === "setProfileUrl") {
     chrome.storage.local.set({ profileUrl: request.profileUrl }, () => {
       if (chrome.runtime.lastError) {

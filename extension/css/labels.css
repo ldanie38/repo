@@ -24,6 +24,48 @@
     background: var(--bg);
     color: var(--text);
   }
+
+  .crm-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 18px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(248,249,250,0.95));
+    border-radius: 10px;
+    border: 1px solid rgba(14,22,34,0.04);
+    box-shadow: 0 6px 18px rgba(15,23,36,0.04);
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 16px;
+  }
+  
+  .crm-nav h1 {
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600; /* optional weight tweak but will inherit font-family and color */
+  }
+  
+  .crm-nav h1::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, rgba(39,135,214,0.9), rgba(111,185,240,0.9));
+    box-shadow: 0 4px 12px rgba(39,135,214,0.12);
+    display: inline-block;
+    transform: translateY(-1px);
+  }
+  
+  
+  .crm-nav .actions {
+    margin-left: auto;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
   .feature, .label, .card {
     background: var(--surface);
     border: 1px solid var(--border);

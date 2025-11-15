@@ -203,4 +203,29 @@ import {
   
 
 
-  
+
+// redirect to labels html
+document.addEventListener("DOMContentLoaded", () => {
+  const goHomeLink = document.getElementById("goHomeLink");
+  if (goHomeLink) {
+    goHomeLink.addEventListener("click", (e) => {
+      e.preventDefault();
+
+      // Ask background to open labels.html as a small popup window
+      chrome.runtime.sendMessage({ action: "openLabels" }, (resp) => {
+        if (chrome.runtime.lastError) {
+          console.error("openLabels sendMessage error", chrome.runtime.lastError);
+          // fallback: open in a new tab
+          const url = chrome.runtime.getURL("labels.html");
+          window.open(url, "_blank", "noopener");
+          return;
+        }
+        if (!resp || !resp.success) {
+          // fallback if background failed
+          const url = chrome.runtime.getURL("labels.html");
+          window.open(url, "_blank", "noopener");
+        }
+      });
+    });
+  }
+});

@@ -303,6 +303,50 @@
   #logoutLink:hover {
     text-decoration: underline;
   }
+
+
+  /* make a button look and behave like a text link (accessible) */
+.popup-actions .nav-button {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: #2563eb;                /* link color */
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1;
+}
+
+/* subtle hover/active affordances */
+.popup-actions .nav-button:hover {
+  color: #1b4fb0;
+  text-decoration-thickness: 2px;
+  transform: translateY(-1px);
+}
+
+.popup-actions .nav-button:active {
+  transform: translateY(0);
+}
+
+/* keyboard focus visible for accessibility */
+.popup-actions .nav-button:focus-visible {
+  outline: 3px solid rgba(37,99,235,0.18);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* optional small icon sizing if you add an icon inside the button */
+.popup-actions .nav-button svg {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+}
+
   
 
 footer {

@@ -1,60 +1,94 @@
+// background.js (MV3 service worker)
+// Clears tokens and opens the extension UI as a popup window (preferred).
+// Falls back to opening the web app login/landing page if popup window creation fails.
+// Returns sendResponse({ success: true, opened: "popup_window" | "web_login_fallback" }) on success.
 
-// Single onMessage listener, async-safe with return true where needed.
+const WEB_LOGIN_URL = "http://localhost:8000/extension/landing/"; // change if needed
+const POPUP_PATH = "popup.html";
+const POPUP_WIDTH = 420;
+const POPUP_HEIGHT = 700;
+
+function safeLog(...args) {
+  try { console.log(...args); } catch (e) {}
+}
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log("[BG] received message:", request);
+  safeLog("[BG] received message:", request);
 
-  // LOGOUT: clear tokens & labels, then open full-app login and respond
-  if (request.action === "logout") {
-    // clear extension state then open the full-app login page
-    chrome.storage.local.remove(["jwt", "labels"], () => {
-      const err = chrome.runtime.lastError;
-      if (err) {
-        console.error("[BG] logout clear error:", err);
-        sendResponse({ success: false, error: err.message });
-        return;
-      }
-
-      console.log("[BG] cleared jwt & labels");
-
-      // Open a valid app page after logout. Change this URL if you'd rather
-      // open the site root or a dedicated login page you create on the server.
-      const loginUrl = "http://localhost:8000/extension/landing/";
-      chrome.tabs.create({ url: loginUrl }, () => {
-        const tabErr = chrome.runtime.lastError;
-        if (tabErr) {
-          console.error("[BG] failed to open login tab:", tabErr);
-          sendResponse({ success: true, warning: "failed_to_open_tab" });
-        } else {
-          sendResponse({ success: true });
-        }
-      });
-    });
-    return true; // keep channel open for async response
+  if (!request || !request.action) {
+    sendResponse({ success: false, error: "invalid_message" });
+    return;
   }
 
-  // SET TOKEN: save jwt token
+  if (request.action === "logout") {
+    (async () => {
+      try {
+        safeLog("[BG] starting logout flow");
+
+        // 1) Clear stored keys (tokens, labels, etc.)
+        chrome.storage.local.remove(["jwt", "access_token", "refresh_token", "labels"], () => {
+          if (chrome.runtime.lastError) {
+            console.error("[BG] storage.remove error:", chrome.runtime.lastError);
+            sendResponse({ success: false, error: chrome.runtime.lastError.message });
+            return;
+          }
+          safeLog("[BG] cleared storage keys");
+
+          // 2) Preferred UX: open the packaged popup as a small window
+          const popupUrl = chrome.runtime.getURL(POPUP_PATH);
+          chrome.windows.create(
+            { url: popupUrl, type: "popup", width: POPUP_WIDTH, height: POPUP_HEIGHT, focused: true },
+            (win) => {
+              if (chrome.runtime.lastError || !win) {
+                console.warn("[BG] windows.create(popup) failed:", chrome.runtime.lastError);
+                // Fallback: open the web login/landing page in a tab
+                chrome.tabs.create({ url: WEB_LOGIN_URL }, (tab2) => {
+                  if (chrome.runtime.lastError || !tab2) {
+                    console.error("[BG] fallback tabs.create(web_login) failed:", chrome.runtime.lastError);
+                    sendResponse({ success: false, error: chrome.runtime.lastError ? chrome.runtime.lastError.message : "failed_to_open" });
+                  } else {
+                    safeLog("[BG] opened web login tab id", tab2.id);
+                    sendResponse({ success: true, opened: "web_login_fallback" });
+                  }
+                });
+                return;
+              }
+
+              safeLog("[BG] opened popup window id", win.id);
+              sendResponse({ success: true, opened: "popup_window" });
+            }
+          );
+        });
+      } catch (err) {
+        console.error("[BG] unexpected logout error:", err);
+        sendResponse({ success: false, error: String(err) });
+      }
+    })();
+
+    return true; // keep sendResponse valid asynchronously
+  }
+
+  // Save token action
   if (request.action === "setToken") {
-    chrome.storage.local.set({ jwt: request.token }, () => {
-      const err = chrome.runtime.lastError;
-      if (err) {
-        console.error("[BG] setToken error:", err);
-        sendResponse({ success: false, error: err.message });
+    chrome.storage.local.set({ jwt: request.token || null }, () => {
+      if (chrome.runtime.lastError) {
+        console.error("[BG] setToken error:", chrome.runtime.lastError);
+        sendResponse({ success: false, error: chrome.runtime.lastError.message });
       } else {
-        console.log("[BG] Token saved to storage.");
+        safeLog("[BG] Token saved to storage.");
         sendResponse({ success: true });
       }
     });
     return true;
   }
 
-  // PING (sync)
+  // Ping (sync)
   if (request.action === "ping") {
-    sendResponse({ fromBackground: true, payload: request.payload || null });
-    return; // synchronous
+    sendResponse({ success: true, fromBackground: true });
+    return;
   }
 
-  // TEST API (async fetch)
+  // testApi (async fetch)
   if (request.action === "testApi") {
     fetch(request.url, {
       headers: { Authorization: `Bearer ${request.token}` }
@@ -66,27 +100,27 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       .then(data => sendResponse({ success: true, data }))
       .catch(err => {
         console.error("[BG] API error:", err);
-        sendResponse({ success: false, error: err.toString() });
+        sendResponse({ success: false, error: String(err) });
       });
 
     return true;
   }
 
-  // SET PROFILE URL (fixed)
+  // setProfileUrl action
   if (request.action === "setProfileUrl") {
     chrome.storage.local.set({ profileUrl: request.profileUrl }, () => {
-      const err = chrome.runtime.lastError;
-      if (err) {
-        console.error("[BG] setProfileUrl error:", err);
-        sendResponse({ success: false, error: err.message });
+      if (chrome.runtime.lastError) {
+        console.error("[BG] setProfileUrl error:", chrome.runtime.lastError);
+        sendResponse({ success: false, error: chrome.runtime.lastError.message });
       } else {
-        console.log("[BG] Profile URL saved:", request.profileUrl);
+        safeLog("[BG] Profile URL saved:", request.profileUrl);
         sendResponse({ success: true });
       }
     });
     return true;
   }
 
-  // unknown action
+  // Unknown action
+  console.warn("[BG] unknown action:", request.action);
   sendResponse({ success: false, error: "unknown_action" });
 });

@@ -233,5 +233,5 @@ body.fullpage {
   .switch input:checked + .slider:before {
     transform: translate(calc(var(--w) - var(--h)), -50%);
   }
-  
+
 

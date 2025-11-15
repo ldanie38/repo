@@ -23,14 +23,15 @@ body {
   justify-content: space-between;
   gap: 12px;
   padding: 14px 18px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(248,249,250,0.95));
+  background: linear-gradient(180deg, #cae9ff 0%, #bfe6ff 60%);
   border-radius: 10px;
-  border: 1px solid rgba(14,22,34,0.04);
-  box-shadow: 0 6px 18px rgba(15,23,36,0.04);
+  border: 1px solid rgba(14,22,34,0.06);
+  box-shadow: 0 6px 18px rgba(15,23,36,0.06);
   width: 100%;
   box-sizing: border-box;
   margin-bottom: 16px;
 }
+
 
 .crm-nav h1 {
   margin: 0;
@@ -90,19 +91,160 @@ box-sizing: border-box;
 gap: 30px;
 }
 
-.saved{
-  margin-top: 50px;
+/* saves */
+
+
+
+/* Saved Templates 3D style (apply to your existing structure) */
+.saved {
+  margin-top: 12px;
+  padding: 14px;
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #dff6ff 0%, #cfe9ff 60%);
+ 
+  color: #053825;
+  position: relative;
+  transform: translateZ(0);
+  transition: transform 200ms cubic-bezier(.2,.9,.3,1), box-shadow 200ms;
+  box-shadow:
+    0 20px 40px rgba(3,18,12,0.14),
+    0 6px 18px rgba(3,18,12,0.08),
+    0 1px 0 rgba(255,255,255,0.35) inset;
+  border: 1px solid rgba(4,60,40,0.06);
+  overflow: hidden;
+  animation: savedPop .26s cubic-bezier(.2,.9,.3,1);
+}
+
+/* inner sheen / bevel */
+.saved::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  /*   background: linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.02) 30%, rgba(0,0,0,0.03) 100%);   */
+  mix-blend-mode: overlay;
+  box-shadow: 0 6px 18px rgba(2,6,23,0.06) inset;
+}
+
+/* Title */
+.saved > h2 {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #033827;
+  letter-spacing: -0.01em;
+}
+
+/* Card list container */
+.card-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+
+/* Card rows with 3D lift */
+.card-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #ffffff 0%, #f6fbf8 100%);
+  box-shadow: 0 8px 18px rgba(3,18,12,0.06), 0 2px 0 rgba(255,255,255,0.6) inset;
+  border: 1px solid rgba(3,18,12,0.04);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+/* Hover/press effects */
+.card-list li:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 20px 36px rgba(3,18,12,0.12), 0 2px 0 rgba(255,255,255,0.6) inset;
+}
+.card-list li:active { transform: translateY(-2px) scale(1.005); }
+
+/* Thumbnail / icon with subtle extrusion */
+.card-list .thumb {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 8px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  color:#04412d;
+  background: linear-gradient(180deg,#e6fbf2,#cfeeeb);
+  box-shadow: 0 8px 18px rgba(3,18,12,0.08);
+  border: 1px solid rgba(3,18,12,0.06);
+  flex-shrink: 0;
+}
+
+/* Meta and truncation */
+.card-list .meta {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+.card-list .meta .title {
+  display: block;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.card-list .meta .sub {
+  display: block;
+  color: rgba(4,65,45,0.6);
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* Actions */
+.card-list .actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.card-list .actions button {
+  height: 34px;
+  width: 34px;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(180deg,#fbfbfb,#f0f6f3);
+  box-shadow: 0 4px 8px rgba(3,18,12,0.06);
+  cursor: pointer;
+  transition: transform 120ms;
+}
+.card-list .actions button:active { transform: translateY(1px) scale(0.995); }
+
+/* Responsive tweaks for narrow popups */
+@media (max-width: 360px) {
+  .saved { padding: 10px; border-radius: 10px; }
+  .card-list li { padding: 8px; gap: 8px; }
+  .card-list .thumb { width: 36px; height: 36px; min-width: 36px; }
+}
+
+/* Entrance animation */
+@keyframes savedPop {
+  from { transform: translateY(6px) scale(.99); opacity: 0; }
+  to   { transform: translateY(0) scale(1); opacity: 1; }
 }
 
 
 
 
+/* saves */
 label {
   display: block;
   width: 100%;
   max-width: 900px;
   margin: 0.5rem 0;
-  color: #495057;
+  color:#4a8fe7;
  
 
   
@@ -156,7 +298,7 @@ label h3 {
   margin: 0 0 8px 0;
   font-size: 14px;
   font-weight: 400;
-  color: #495057;
+  color:#4a8fe7;
 
 }
 
@@ -175,10 +317,9 @@ label.select-field {
 /* Heading above the select */
 label.select-field h3 {
   margin: 0 0 6px 0;
-  font-size: 0.95rem;
-  color: #495057;        
+  font-size: 0.90rem;       
   letter-spacing: -0.01em;
-  font-family: var(--ui-font-dm);
+
   font-weight:bolder;
 }
 

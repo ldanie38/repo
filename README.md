@@ -1,77 +1,10 @@
-## Current State” note up top saying this repo contains both the original FastAPI scaffold and a new Django backend, 
-## here’s how to work with each would orient new contributors instantly.
-
-
-
-# Facebook AI Connector Messenger CRM (Base Project Scaffold Scaffold)
-
-This is the initial scaffold aligned to **Base Project Scaffold Plan** and the **Roadmap**:
-- Monorepo: `extension/` (Chrome MV3) and `backend/` (FastAPI).
-- CI via Gitea Actions for both apps.
-- Dev environment with Docker Compose (Postgres + backend).
-- Minimal end‑to‑end: popup button calls `GET /api/contacts` and displays a toast.
-
-> Onboarding target: < 30 minutes.
-
-## Quick Start
-
-### Prereqs
-- Python 3.11+
-- Node 18+ (only if you plan to add build tooling to the extension)
-- Docker + Docker Compose
-
-### 1) Start database and backend
-```bash
-docker compose -f infra/docker/compose.dev.yml up --build
-# API available at http://localhost:8000
-```
-
-### 2) Load the extension (MV3)
-1. Go to `chrome://extensions` → Enable **Developer mode**.
-2. Click **Load unpacked** → select the `extension/` folder.
-3. Click the toolbar icon → **Test API** button should show response or error.
-
-### 3) Test the API manually
-```bash
-curl http://localhost:8000/healthz
-curl http://localhost:8000/api/contacts
-```
-
-## Structure
-```
-extension/      # Chrome extension (MV3) - Popup + Background
-backend/        # FastAPI app with /api/contacts & /api/logs
-infra/          # Docker Compose for local dev (Postgres + Backend)
-.gitea/         # CI workflows for extension and backend
-docs/           # Developer docs
-```
-
-## Environment
-Copy `.env.sample` to service-specific `.env.local` files where needed.
-
-- Backend (example): `backend/.env.local`
-```
-DATABASE_URL=postgresql+psycopg://postgres:postgres@db:5432/facrm
-ALLOWED_ORIGINS=chrome-extension://*
-CONNECTWISE_BASE_URL=https://example.test
-CONNECTWISE_KEY=mock-key
-CONNECTWISE_SECRET=mock-secret
-```
-
-## Next Steps (Base Project Scaffold tasks)
-- T7 Replace ConnectWise mock with real sandbox credentials.
-- T9 Add Smart Filter UI controls (Companies/Tags/toggles) to popup.
-- T11 Do an A11y pass on popup.
-- T12 Enhance backend logging to file; add error toasts in popup.
-- T13 Flesh out docs/dev-setup.md.
-
-## License
-MIT (change as needed).
 
 
 
 
-## Lua
+
+
+
 ## Local Development Setup
 ## This project runs a Django backend in Docker with a Postgres database. Follow these steps to get started.
 
@@ -92,29 +25,7 @@ Copy the template and adjust values if needed:
 or since we have .env.example u can run this in bash/zsh  ---> cp .env.example .env
 
 
-PORT=8000
 
-POSTGRES_DB=ctm_db
-POSTGRES_USER=ctm_user
-POSTGRES_PASSWORD=supersecret
-POSTGRES_HOST=db
-POSTGRES_PORT=5432
-
-SECRET_KEY=dev_secret_key_here
-DEBUG=True
-
-
-☁️ Cloud / Shared DB
-# PORT=8000
-# POSTGRES_DB=ctm_db
-# POSTGRES_USER=team_user
-# POSTGRES_PASSWORD=change_me
-# POSTGRES_HOST=your-cloud-db-host.rds.amazonaws.com
-# POSTGRES_PORT=5432
-# SECRET_KEY=secure_production_key_here
-# DEBUG=False
-# HOST=0.0.0.0
-# RELOAD=False
 
 
 # App server
@@ -141,11 +52,10 @@ API endpoints follow /api/... as defined in the project.
 
 
 
-## Lua 
-# Facebook AI Connector Messenger CRM
+
+
 ## Django Backend
 
-[![Backend CI](https://gitea.birthdaymessaging.io/ctmmediagroup/FbAIConnectCRM/actions/workflows/backend-ci.yml/badge.svg)](https://gitea.birthdaymessaging.io/ctmmediagroup/FbAIConnectCRM/actions/workflows/backend-ci.yml)
 
 
 ## Running everything inside Docker 🐳 RECOMMENDED !!!!
@@ -156,7 +66,7 @@ You just need Docker installed, because all Python code runs inside the web cont
 Your .env just feeds values into the container.
 
 
-## Lua
+
 ## Running Python tooling locally (outside Docker) if u want but dont do it 
 
 run manage.py 
@@ -173,7 +83,7 @@ pip install -r requirements.txt
 
 
 
-## Lua
+
 ## Makefile 
 
 ## Spins up your Dockerised stack (web + db + volumes).
@@ -185,7 +95,7 @@ make up PORT=8010
 
 ##  run migrations, tests, shell, etc. inside the running container with make migrate, make test, etc.
 
-## Lua
+
 ## Bypasses Docker entirely, runs Django directly in your local venv.
 make run PORT=8010
 
@@ -273,34 +183,8 @@ docker compose -f docker/docker-compose.yml exec web python manage.py dbshell
 \q or CTRL+D
 
 
-## Lua 
-## Architecture Overview
-
-         ┌────────────────────┐
-         │   CRM Extension    │         
-         │ (Browser Frontend) │
-         └─────────┬──────────┘
-                   │  API calls
-                   ▼
-         ┌────────────────────┐
-         │    Django Backend  │
-         │ (Docker Container) │
-         └──────┬─────┬───────┘
-                │     │
-      Background│     │REST API
-        Jobs    │     │Endpoints
-   (Connector   │     │
-    Automations)│     │
-                ▼     ▼
-         ┌────────────────────┐
-         │   PostgreSQL DB    │
-         │(Local or Cloud via │
-         │   Docker Network)  │
-         └────────────────────┘
 
 
-
-## or 
 
 
 🖥️  CRM Extension (Browser UI)
@@ -313,7 +197,7 @@ docker compose -f docker/docker-compose.yml exec web python manage.py dbshell
 
 
 ## How it flows:
-The CRM Extension UI sends/receives data via Django’s REST API.
+The Extension UI sends/receives data via Django’s REST API.
 
 The Connector module runs background automation jobs (can be triggered by the UI or backend dashboard).
 
